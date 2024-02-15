@@ -4,13 +4,14 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.services.UrlService;
 import edu.java.bot.utils.CommandRemover;
+import lombok.EqualsAndHashCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@EqualsAndHashCode
 public class Untrack implements Commandable {
     private final UrlService urlService;
-    private final CommandRemover commandRemover;
 
     public static final String NAME = "/untrack";
 
@@ -19,9 +20,8 @@ public class Untrack implements Commandable {
     public static final String MESSAGE_FAILED = "Произошла ошибка\n";
 
     @Autowired
-    public Untrack(UrlService urlService, CommandRemover commandRemover) {
+    public Untrack(UrlService urlService) {
         this.urlService = urlService;
-        this.commandRemover = commandRemover;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class Untrack implements Commandable {
         long chatId = update.message().chat().id();
         String answer;
         try {
-            String url = commandRemover.removeCommand(update.message().text());
+            String url = CommandRemover.removeCommand(update.message().text());
             answer = constructAnswer(chatId, url);
         } catch (Exception e) {
             answer = e.getMessage();

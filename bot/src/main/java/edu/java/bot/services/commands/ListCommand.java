@@ -5,10 +5,12 @@ import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.services.UrlService;
 import java.util.List;
+import lombok.EqualsAndHashCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@EqualsAndHashCode
 public class ListCommand implements Commandable {
     private final UrlService urlService;
 
@@ -44,7 +46,8 @@ public class ListCommand implements Commandable {
                 answer.append(MESSAGE_FOR_EMPTY_LIST);
             } else {
                 answer.append(MESSAGE);
-                urls.forEach(url -> answer.append("● ").append(url).append("\n"));
+                urls.forEach(url ->
+                    answer.append("● ").append(url).append(System.lineSeparator()));
             }
         } catch (IllegalArgumentException exception) {
             answer.append(exception.getMessage());

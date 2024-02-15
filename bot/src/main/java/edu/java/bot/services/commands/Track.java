@@ -2,15 +2,17 @@ package edu.java.bot.services.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
+import edu.java.bot.services.UrlService;
 import edu.java.bot.utils.CommandRemover;
-import edu.java.bot.utils.urlValidators.UrlChainValidation;
+import edu.java.bot.utils.UrlValidator;
+import lombok.EqualsAndHashCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@EqualsAndHashCode
 public class Track implements Commandable {
-    private final UrlChainValidation urlChainValidation;
-    private final CommandRemover commandRemover;
+    private final UrlService urlService;
 
     public static final String NAME = "/track";
 
@@ -19,12 +21,8 @@ public class Track implements Commandable {
     public static final String MESSAGE_FAILED = "Произошла ошибка\n";
 
     @Autowired
-    public Track(
-        CommandRemover commandRemover,
-        UrlChainValidation urlChainValidation
-    ) {
-        this.urlChainValidation = urlChainValidation;
-        this.commandRemover = commandRemover;
+    public Track(UrlService urlService) {
+        this.urlService = urlService;
     }
 
     @Override
@@ -42,8 +40,9 @@ public class Track implements Commandable {
         long chatId = update.message().chat().id();
         String answer;
         try {
-            String url = commandRemover.removeCommand(update.message().text());
-            urlChainValidation.checkUrl(url, chatId);
+            String url = CommandRemover.removeCommand(update.message().text());
+            UrlValidator.checkUrl(url);
+            urlService.add(chatId, url);
             answer = MESSAGE_SUCCEEDED;
         } catch (IllegalArgumentException exception) {
             answer = MESSAGE_FAILED + exception.getMessage();

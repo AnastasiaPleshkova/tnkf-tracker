@@ -18,7 +18,6 @@ public class UrlService {
     private Map<Long, List<String>> tempMap = new HashMap<>(); //TODO remove after config connection to db
 
     public void add(long chatId, String url) {
-
         if (tempMap.containsKey(chatId)) {
             List<String> list = new ArrayList<>(tempMap.get(chatId));
             if (!list.contains(url)) {
@@ -34,9 +33,10 @@ public class UrlService {
     }
 
     public void remove(long chatId, String url) {
-        List<String> list = getLinksByUser(chatId);
+        List<String> list = new ArrayList<>(getLinksByUser(chatId));
         if (list.contains(url)) {
             list.remove(url);
+            tempMap.put(chatId, list);
         } else {
             throw new IllegalArgumentException(NOT_FOUND_URL_MSG);
         }
@@ -46,7 +46,7 @@ public class UrlService {
     public List<String> getLinksByUser(long chatId) {
         if (tempMap.containsKey(chatId)) {
             log.info("Get urls list of user " + chatId);
-            return tempMap.get(chatId);
+            return List.copyOf(tempMap.get(chatId));
         } else {
             throw new IllegalArgumentException(FIRST_SIGH_IN_MSG);
         }

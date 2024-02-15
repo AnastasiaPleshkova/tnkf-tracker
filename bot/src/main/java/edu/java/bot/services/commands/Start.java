@@ -3,9 +3,11 @@ package edu.java.bot.services.commands;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.services.UserService;
+import lombok.EqualsAndHashCode;
 import org.springframework.stereotype.Component;
 
 @Component
+@EqualsAndHashCode
 public class Start implements Commandable {
     private final UserService userService;
 

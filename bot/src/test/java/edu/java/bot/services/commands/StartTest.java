@@ -6,24 +6,21 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.services.UserService;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class StartTest {
-    @MockBean
-    private UserService userService;
-    @MockBean
-    private Update update;
-    @MockBean
-    private Message message;
-    @MockBean
-    private Chat chat;
-    @Autowired
+    @Mock UserService userService;
+    @Mock Update update;
+    @Mock Message message;
+    @Mock Chat chat;
+    @InjectMocks
     private Start start;
 
     @Test

@@ -3,42 +3,46 @@ package edu.java.bot.configuration;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.BotCommand;
-import com.pengrad.telegrambot.request.BaseRequest;
+import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SetMyCommands;
-import com.pengrad.telegrambot.response.BaseResponse;
-import edu.java.bot.services.commands.Commandable;
-import java.util.List;
+import edu.java.bot.services.Handleable;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 @Slf4j
-@Component
 public class MyBot implements Bot {
     private final TelegramBot telegramBot;
+    private final Handleable holder;
 
-    public MyBot(TelegramBot telegramBot) {
-        this.telegramBot = telegramBot;
+    public MyBot(String token, Handleable holder) {
+        this.telegramBot = new TelegramBot(token);
+        this.holder = holder;
     }
 
-    public <T extends BaseRequest<T, R>, R extends BaseResponse> void execute(BaseRequest<T, R> request) {
+    public void execute(Update update) {
         try {
-            telegramBot.execute(request);
+            String command = update.message().text().split(" ")[0];
+            SendMessage sendMessage = holder.getHandler(command).makeMessage(update);
+            telegramBot.execute(sendMessage);
         } catch (Exception e) {
             log.error(e.getMessage());
         }
     }
 
-    public void setUpdatesListener(UpdatesListener listener) {
-        telegramBot.setUpdatesListener(listener, e -> {
+    public void setUpdatesListener() {
+        telegramBot.setUpdatesListener(updates -> {
+            updates.forEach(this::execute);
+            return UpdatesListener.CONFIRMED_UPDATES_ALL;
+        }, e -> {
             if (e.response() != null) {
-                log.error(e.response().errorCode() + " " + e.response().description());
+                log.error(String.format("%s %s", e.response().errorCode(), e.response().description()));
             }
         });
     }
 
     @Override
-    public void setBotMenu(List<? extends Commandable> commandList) {
-        BotCommand[] botCommands = commandList.stream()
+    public void setBotMenu() {
+        BotCommand[] botCommands = holder.getCommands().stream()
             .map(x -> new BotCommand(x.getCommandName(), x.getDescription())).toArray(BotCommand[]::new);
         try {
             telegramBot.execute(new SetMyCommands(botCommands));
@@ -52,4 +56,5 @@ public class MyBot implements Bot {
         telegramBot.removeGetUpdatesListener();
         telegramBot.shutdown();
     }
+
 }

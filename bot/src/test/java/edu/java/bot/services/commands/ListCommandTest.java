@@ -7,36 +7,28 @@ import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.services.UrlService;
 import java.util.Collections;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class ListCommandTest {
-    @MockBean
-    private Update update;
-    @MockBean
-    private Message message;
-    @MockBean
-    private Chat chat;
-    @MockBean
-    private UrlService urlService;
-    @Autowired
+    @Mock Update update;
+    @Mock Message message;
+    @Mock Chat chat;
+    @Mock UrlService urlService;
+    @InjectMocks
     private ListCommand listCommand;
-
-    @BeforeEach
-    void init() {
-        Mockito.when(update.message()).thenReturn(message);
-        Mockito.when(message.chat()).thenReturn(chat);
-    }
 
     @Test
     void shouldReturnMessageForEmptyList() {
+        Mockito.when(update.message()).thenReturn(message);
+        Mockito.when(message.chat()).thenReturn(chat);
         Mockito.when(chat.id()).thenReturn(100L);
         Mockito.when(urlService.getLinksByUser(100L)).thenReturn(Collections.emptyList());
 
@@ -51,14 +43,19 @@ public class ListCommandTest {
     }
 
     @Test
-    void shouldReturnList() {
+    void shouldReturnTestUrlsList() {
+        Mockito.when(update.message()).thenReturn(message);
+        Mockito.when(message.chat()).thenReturn(chat);
         Mockito.when(chat.id()).thenReturn(100L);
-        Mockito.when(urlService.getLinksByUser(100L)).thenReturn(
-            List.of(
-                "https://github.com/sanyarnd/tinkoff-java-course-2023/",
-                "https://stackoverflow.com/questions/1642028/what-is-the-operator-in-c"
-            )
+
+        List<String> testUrls = List.of(
+            "https://github.com/sanyarnd/tinkoff-java-course-2023/",
+            "https://stackoverflow.com/questions/1642028/what-is-the-operator-in-c"
         );
+        StringBuilder result = new StringBuilder(ListCommand.MESSAGE);
+        testUrls.forEach(x -> result.append("● ").append(x).append(System.lineSeparator()));
+
+        Mockito.when(urlService.getLinksByUser(100L)).thenReturn(testUrls);
 
         SendMessage msg = listCommand.makeMessage(update);
 
@@ -66,11 +63,7 @@ public class ListCommandTest {
             "Message parameters",
             () -> assertThat(msg.getParameters().get("chat_id")).isEqualTo(100L),
             () -> Mockito.verify(urlService).getLinksByUser(100L),
-            () -> assertThat(msg.getParameters().get("text")).isEqualTo(
-                "*Список отслеживаемых ссылок:*\n" +
-                    "● https://github.com/sanyarnd/tinkoff-java-course-2023/\n" +
-                    "● https://stackoverflow.com/questions/1642028/what-is-the-operator-in-c\n"
-            )
+            () -> assertThat(msg.getParameters().get("text")).isEqualTo(result.toString())
         );
     }
 
