@@ -4,7 +4,7 @@ import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.services.UrlService;
+import edu.java.bot.services.DatabaseUrlService;
 import edu.java.bot.utils.UrlValidator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,10 +17,14 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class TrackTest {
-    @Mock Update update;
-    @Mock Message message;
-    @Mock Chat chat;
-    @Mock UrlService urlService;
+    @Mock
+    Update update;
+    @Mock
+    Message message;
+    @Mock
+    Chat chat;
+    @Mock
+    DatabaseUrlService databaseUrlService;
     @InjectMocks
     private Track track;
 
@@ -32,7 +36,7 @@ public class TrackTest {
         String receiveMessage = "/track https://github.com/sanyarnd/tinkoff-java-course-2023/";
         when(message.text()).thenReturn(receiveMessage);
 
-        SendMessage msg = track.makeMessage(update);
+        SendMessage msg = track.process(update);
 
         assertAll(
             "Message parameters",
@@ -49,7 +53,7 @@ public class TrackTest {
         String receiveMessage = "/track https://google.com/tinkoff-java-course-2023/";
         when(message.text()).thenReturn(receiveMessage);
 
-        SendMessage msg = track.makeMessage(update);
+        SendMessage msg = track.process(update);
 
         assertAll(
             "Message parameters",

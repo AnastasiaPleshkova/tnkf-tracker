@@ -3,7 +3,7 @@ package edu.java.bot.services.commands;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.ParseMode;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.services.UrlService;
+import edu.java.bot.services.DatabaseUrlService;
 import java.util.List;
 import lombok.EqualsAndHashCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @EqualsAndHashCode
-public class ListCommand implements Commandable {
-    private final UrlService urlService;
+public class ListCommand implements Command {
+    private final DatabaseUrlService databaseUrlService;
 
     public static final String NAME = "/list";
 
@@ -21,8 +21,8 @@ public class ListCommand implements Commandable {
     public static final String MESSAGE_FOR_EMPTY_LIST = "_Отслеживаемых ссылок пока нет_";
 
     @Autowired
-    public ListCommand(UrlService urlService) {
-        this.urlService = urlService;
+    public ListCommand(DatabaseUrlService databaseUrlService) {
+        this.databaseUrlService = databaseUrlService;
     }
 
     @Override
@@ -36,19 +36,17 @@ public class ListCommand implements Commandable {
     }
 
     @Override
-    public SendMessage makeMessage(Update update) {
+    public SendMessage process(Update update) {
         long chatId = update.message().chat().id();
         StringBuilder answer = new StringBuilder();
 
         try {
-            List<String> urls = urlService.getLinksByUser(chatId);
+            List<String> urls = databaseUrlService.getLinksByUser(chatId);
             if (urls.isEmpty()) {
-                answer.append(MESSAGE_FOR_EMPTY_LIST);
-            } else {
-                answer.append(MESSAGE);
-                urls.forEach(url ->
-                    answer.append("● ").append(url).append(System.lineSeparator()));
+                return new SendMessage(chatId, MESSAGE_FOR_EMPTY_LIST).parseMode(ParseMode.Markdown);
             }
+            answer.append(MESSAGE);
+            urls.forEach(url -> answer.append("● ").append(url).append(System.lineSeparator()));
         } catch (IllegalArgumentException exception) {
             answer.append(exception.getMessage());
         }

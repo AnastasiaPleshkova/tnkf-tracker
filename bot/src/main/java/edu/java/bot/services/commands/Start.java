@@ -2,22 +2,22 @@ package edu.java.bot.services.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.services.UserService;
+import edu.java.bot.services.DatabaseUserService;
 import lombok.EqualsAndHashCode;
 import org.springframework.stereotype.Component;
 
 @Component
 @EqualsAndHashCode
-public class Start implements Commandable {
-    private final UserService userService;
+public class Start implements Command {
+    private final DatabaseUserService databaseUserService;
 
     public static final String NAME = "/start";
 
     public static final String DESCRIPTION = "Начать общение с ботом";
     public static final String MESSAGE = "Спасибо, что присоединился!";
 
-    public Start(UserService userService) {
-        this.userService = userService;
+    public Start(DatabaseUserService databaseUserService) {
+        this.databaseUserService = databaseUserService;
     }
 
     @Override
@@ -31,9 +31,9 @@ public class Start implements Commandable {
     }
 
     @Override
-    public SendMessage makeMessage(Update update) {
+    public SendMessage process(Update update) {
         long chatId = update.message().chat().id();
-        userService.add(chatId);
+        databaseUserService.add(chatId);
         return new SendMessage(chatId, MESSAGE);
     }
 }

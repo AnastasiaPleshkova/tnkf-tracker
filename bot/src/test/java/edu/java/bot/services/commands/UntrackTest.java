@@ -4,7 +4,7 @@ import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.services.UrlService;
+import edu.java.bot.services.DatabaseUrlService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,10 +17,14 @@ import static org.mockito.Mockito.doThrow;
 
 @ExtendWith(MockitoExtension.class)
 public class UntrackTest {
-    @Mock Update update;
-    @Mock Message message;
-    @Mock Chat chat;
-    @Mock UrlService urlService;
+    @Mock
+    Update update;
+    @Mock
+    Message message;
+    @Mock
+    Chat chat;
+    @Mock
+    DatabaseUrlService databaseUrlService;
     @InjectMocks
     private Untrack untrack;
 
@@ -32,7 +36,7 @@ public class UntrackTest {
         String receiveMessage = "/untrack https://github.com/sanyarnd/tinkoff-java-course-2023/";
         Mockito.when(message.text()).thenReturn(receiveMessage);
 
-        SendMessage msg = untrack.makeMessage(update);
+        SendMessage msg = untrack.process(update);
 
         assertAll(
             "Message parameters",
@@ -49,16 +53,16 @@ public class UntrackTest {
         String receiveMessage = "/untrack https://github.com/sanyarnd/tinkoff-java-course-2023/";
         Mockito.when(message.text()).thenReturn(receiveMessage);
 
-        doThrow(new IllegalArgumentException(UrlService.NOT_FOUND_URL_MSG))
-            .when(urlService).remove(100L, "https://github.com/sanyarnd/tinkoff-java-course-2023/");
+        doThrow(new IllegalArgumentException(DatabaseUrlService.NOT_FOUND_URL_MSG))
+            .when(databaseUrlService).remove(100L, "https://github.com/sanyarnd/tinkoff-java-course-2023/");
 
-        SendMessage msg = untrack.makeMessage(update);
+        SendMessage msg = untrack.process(update);
 
         assertAll(
             "Message parameters",
             () -> assertThat(msg.getParameters().get("chat_id")).isEqualTo(100L),
             () -> assertThat(msg.getParameters().get("text")).isEqualTo(
-                Untrack.MESSAGE_FAILED + UrlService.NOT_FOUND_URL_MSG)
+                Untrack.MESSAGE_FAILED + DatabaseUrlService.NOT_FOUND_URL_MSG)
         );
     }
 

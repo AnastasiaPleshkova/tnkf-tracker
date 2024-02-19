@@ -12,20 +12,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
-    @Mock UrlService urlService;
-    @InjectMocks UserService userService;
+public class DatabaseUserServiceTest {
+    @Mock
+    DatabaseUrlService databaseUrlService;
+    @InjectMocks
+    DatabaseUserService databaseUserService;
 
     @Test
     void addUser() throws NoSuchFieldException, IllegalAccessException {
-        long chatId = 123456789;
-        userService.add(chatId);
+        long chatId = 999;
+        databaseUserService.add(chatId);
 
-        Field field = UserService.class.getDeclaredField("tempUserMap");
+        Field field = DatabaseUserService.class.getDeclaredField("tempUserMap");
         field.setAccessible(true);
-        Map<Long, User> map = (Map<Long, User>) field.get(userService);
+        Map<Long, User> map = (Map<Long, User>) field.get(databaseUserService);
 
-        verify(urlService).addUser(chatId);
+        verify(databaseUrlService).addUser(chatId);
         assertThat(map.get(chatId)).isEqualTo(new User(chatId));
     }
 }

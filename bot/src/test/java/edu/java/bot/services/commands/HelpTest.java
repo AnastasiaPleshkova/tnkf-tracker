@@ -4,7 +4,8 @@ import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import java.lang.reflect.Field;
+import edu.java.bot.services.holder.Holder;
+import java.util.Collection;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,9 +17,14 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class HelpTest {
-    @Mock Update update;
-    @Mock Message message;
-    @Mock Chat chat;
+    @Mock
+    Update update;
+    @Mock
+    Message message;
+    @Mock
+    Chat chat;
+    @Mock
+    Holder holder;
     @InjectMocks
     Help help;
 
@@ -28,7 +34,7 @@ public class HelpTest {
         @Mock ListCommand list,
         @Mock Track track,
         @Mock Untrack untrack
-    ) throws IllegalAccessException, NoSuchFieldException {
+    ) {
         when(update.message()).thenReturn(message);
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(100L);
@@ -42,17 +48,13 @@ public class HelpTest {
         when(untrack.getCommandName()).thenReturn(Untrack.NAME);
         when(untrack.getDescription()).thenReturn(Untrack.DESCRIPTION);
 
-        List<Commandable> commandList = List.of(start, help, list, track, untrack);
-
-        Field privateField = Help.class.getDeclaredField("commandList");
-        privateField.setAccessible(true);
-        privateField.set(help, commandList);
-
-        SendMessage msg = help.makeMessage(update);
+        Collection<Command> commands = List.of(start, help, list, track, untrack);
+        when(holder.getCommands()).thenReturn(commands);
 
         StringBuilder result = new StringBuilder(Help.MESSAGE);
-        commandList.forEach(x -> result.append(String.format("%s - %s%n", x.getCommandName(), x.getDescription())));
-        result.append(String.format("%s - %s%n", Help.NAME, Help.DESCRIPTION));
+        commands.forEach(x -> result.append(String.format("%s - %s%n", x.getCommandName(), x.getDescription())));
+
+        SendMessage msg = help.process(update);
 
         assertThat(msg.getParameters().get("chat_id")).isEqualTo(100L);
         assertThat(msg.getParameters().get("text")).isEqualTo(result.toString());

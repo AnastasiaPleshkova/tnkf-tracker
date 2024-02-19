@@ -2,14 +2,15 @@ package edu.java.bot.services.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import java.util.List;
+import edu.java.bot.services.holder.Holder;
 import lombok.EqualsAndHashCode;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
 @EqualsAndHashCode
-public class Help implements Commandable {
-    private final List<? extends Commandable> commandList;
+public class Help implements Command {
+    private final Holder holder;
 
     public static final String NAME = "/help";
 
@@ -20,8 +21,8 @@ public class Help implements Commandable {
         И могу отрабатывать следующие команды:
         """;
 
-    public Help(List<Commandable> commandList) {
-        this.commandList = commandList;
+    public Help(@Lazy Holder holder) {
+        this.holder = holder;
     }
 
     @Override
@@ -35,20 +36,19 @@ public class Help implements Commandable {
     }
 
     @Override
-    public SendMessage makeMessage(Update update) {
+    public SendMessage process(Update update) {
         Long id = update.message().chat().id();
         return new SendMessage(id, getAllCommandsDesc());
     }
 
     private String getAllCommandsDesc() {
         StringBuilder sb = new StringBuilder(MESSAGE);
-        String s = "%s - %s%n";
-        commandList.forEach(command -> sb.append(String.format(
-            s,
+
+        holder.getCommands().forEach(command -> sb.append(String.format(
+            "%s - %s%n",
             command.getCommandName(),
             command.getDescription()
         )));
-        sb.append(String.format(s, this.getCommandName(), this.getDescription()));
 
         return sb.toString();
     }

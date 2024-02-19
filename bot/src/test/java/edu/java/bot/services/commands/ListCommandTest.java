@@ -4,7 +4,7 @@ import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.services.UrlService;
+import edu.java.bot.services.DatabaseUrlService;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -18,10 +18,14 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ExtendWith(MockitoExtension.class)
 public class ListCommandTest {
-    @Mock Update update;
-    @Mock Message message;
-    @Mock Chat chat;
-    @Mock UrlService urlService;
+    @Mock
+    Update update;
+    @Mock
+    Message message;
+    @Mock
+    Chat chat;
+    @Mock
+    DatabaseUrlService databaseUrlService;
     @InjectMocks
     private ListCommand listCommand;
 
@@ -30,14 +34,14 @@ public class ListCommandTest {
         Mockito.when(update.message()).thenReturn(message);
         Mockito.when(message.chat()).thenReturn(chat);
         Mockito.when(chat.id()).thenReturn(100L);
-        Mockito.when(urlService.getLinksByUser(100L)).thenReturn(Collections.emptyList());
+        Mockito.when(databaseUrlService.getLinksByUser(100L)).thenReturn(Collections.emptyList());
 
-        SendMessage msg = listCommand.makeMessage(update);
+        SendMessage msg = listCommand.process(update);
 
         assertAll(
             "Message parameters",
             () -> assertThat(msg.getParameters().get("chat_id")).isEqualTo(100L),
-            () -> Mockito.verify(urlService).getLinksByUser(100L),
+            () -> Mockito.verify(databaseUrlService).getLinksByUser(100L),
             () -> assertThat(msg.getParameters().get("text")).isEqualTo(ListCommand.MESSAGE_FOR_EMPTY_LIST)
         );
     }
@@ -55,14 +59,14 @@ public class ListCommandTest {
         StringBuilder result = new StringBuilder(ListCommand.MESSAGE);
         testUrls.forEach(x -> result.append("● ").append(x).append(System.lineSeparator()));
 
-        Mockito.when(urlService.getLinksByUser(100L)).thenReturn(testUrls);
+        Mockito.when(databaseUrlService.getLinksByUser(100L)).thenReturn(testUrls);
 
-        SendMessage msg = listCommand.makeMessage(update);
+        SendMessage msg = listCommand.process(update);
 
         assertAll(
             "Message parameters",
             () -> assertThat(msg.getParameters().get("chat_id")).isEqualTo(100L),
-            () -> Mockito.verify(urlService).getLinksByUser(100L),
+            () -> Mockito.verify(databaseUrlService).getLinksByUser(100L),
             () -> assertThat(msg.getParameters().get("text")).isEqualTo(result.toString())
         );
     }

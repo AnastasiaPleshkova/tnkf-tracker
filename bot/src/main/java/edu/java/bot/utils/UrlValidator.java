@@ -1,9 +1,11 @@
 package edu.java.bot.utils;
 
+import io.micrometer.common.util.StringUtils;
 import java.net.URL;
+import lombok.experimental.UtilityClass;
 
+@UtilityClass
 public class UrlValidator {
-    private UrlValidator() {}
 
     public static final String MESSAGE = """
         Данная ссылка не поддерживается.\s
@@ -14,9 +16,11 @@ public class UrlValidator {
     public static final String SOF = "https://stackoverflow.com";
 
     public static void checkUrl(String url) {
-        if (url.isEmpty() || isInvalidUrl(url) || (!url.startsWith(GIT) && !url.startsWith(SOF))) {
+
+        if (StringUtils.isBlank(url) || isInvalidUrl(url) || isNotSupported(url)) {
             throw new IllegalArgumentException(MESSAGE);
         }
+
     }
 
     private static boolean isInvalidUrl(String url) {
@@ -26,6 +30,10 @@ public class UrlValidator {
         } catch (Exception e) {
             return true;
         }
+    }
+
+    private static boolean isNotSupported(String url) {
+        return !url.startsWith(GIT) && !url.startsWith(SOF);
     }
 
 }

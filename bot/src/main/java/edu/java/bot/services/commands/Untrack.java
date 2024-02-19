@@ -2,7 +2,7 @@ package edu.java.bot.services.commands;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
-import edu.java.bot.services.UrlService;
+import edu.java.bot.services.DatabaseUrlService;
 import edu.java.bot.utils.CommandRemover;
 import lombok.EqualsAndHashCode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 @EqualsAndHashCode
-public class Untrack implements Commandable {
-    private final UrlService urlService;
+public class Untrack implements Command {
+    private final DatabaseUrlService databaseUrlService;
 
     public static final String NAME = "/untrack";
 
@@ -20,8 +20,8 @@ public class Untrack implements Commandable {
     public static final String MESSAGE_FAILED = "Произошла ошибка\n";
 
     @Autowired
-    public Untrack(UrlService urlService) {
-        this.urlService = urlService;
+    public Untrack(DatabaseUrlService databaseUrlService) {
+        this.databaseUrlService = databaseUrlService;
     }
 
     @Override
@@ -35,7 +35,7 @@ public class Untrack implements Commandable {
     }
 
     @Override
-    public SendMessage makeMessage(Update update) {
+    public SendMessage process(Update update) {
         long chatId = update.message().chat().id();
         String answer;
         try {
@@ -49,7 +49,7 @@ public class Untrack implements Commandable {
 
     private String constructAnswer(long chatId, String url) {
         try {
-            urlService.remove(chatId, url);
+            databaseUrlService.remove(chatId, url);
             return MESSAGE_SUCCEEDED;
         } catch (Exception e) {
             return MESSAGE_FAILED + e.getMessage();
