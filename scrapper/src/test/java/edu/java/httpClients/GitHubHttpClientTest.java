@@ -31,7 +31,6 @@ public class GitHubHttpClientTest {
         String user = "AnastasiaPleshkova";
         String repository = "tnkf-tracker";
         OffsetDateTime time = OffsetDateTime.parse("2024-02-16T11:42:20Z");
-
         GitUserResponse response = new GitUserResponse(user + "/" + repository, time);
 
         String stabUrl = "/repos/" + user + "/" + repository;
@@ -55,7 +54,6 @@ public class GitHubHttpClientTest {
     public void fetchUserCorrectResponse() throws JsonProcessingException {
         String user = "AnastasiaPleshkova";
         OffsetDateTime time = OffsetDateTime.parse("2024-02-16T11:42:20Z");
-
         GitUserResponse response = new GitUserResponse(user, time);
 
         String stabUrl = "/repos/" + user;
