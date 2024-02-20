@@ -16,7 +16,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@WireMockTest(httpPort = 80)
+@WireMockTest(httpPort = 8080)
 public class StackOverFlowHttpClientTest {
 
     private static ObjectMapper objectMapper;
@@ -43,7 +43,7 @@ public class StackOverFlowHttpClientTest {
                 .withHeader("Content-type", "application/json")
                 .withBody(objectMapper.writeValueAsString(response))));
 
-        String url = "http://localhost:80";
+        String url = "http://localhost:8080";
         StackClient stackOverFlowHttpClient = new StackOverFlowHttpClient(url);
 
         StackUserResponse actual = stackOverFlowHttpClient.fetchUser(userID);
