@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class DatabaseUserService implements UserService {
-    private final DatabaseUrlService databaseUrlService;
+    private final UrlService urlService;
     private Map<Long, User> tempUserMap;  // TODO remove after config connection to db
 
-    public DatabaseUserService(DatabaseUrlService databaseUrlService) {
-        this.databaseUrlService = databaseUrlService;
+    public DatabaseUserService(UrlService urlService) {
+        this.urlService = urlService;
     }
 
     @Override
@@ -22,7 +22,7 @@ public class DatabaseUserService implements UserService {
             tempUserMap = new HashMap<>();
         }
         tempUserMap.put(chatId, new User(chatId));
-        databaseUrlService.addUser(chatId);
+        urlService.addUser(chatId);
         log.info("Создали нового пользователя с id " + chatId);
     }
 }
