@@ -7,12 +7,6 @@ public class GitHubHttpClient implements GitClient {
 
     private final WebClient webClient;
 
-    public static final String DEFAULT_URL = "https://api.github.com";
-
-    public GitHubHttpClient() {
-        this(DEFAULT_URL);
-    }
-
     public GitHubHttpClient(String url) {
         this.webClient = WebClient.builder().baseUrl(url).build();
     }

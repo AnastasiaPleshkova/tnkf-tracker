@@ -2,7 +2,13 @@ package edu.java.models;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.OffsetDateTime;
+import java.util.List;
 
-public record StackUserResponse(@JsonProperty("user_id") String userId,
-                                @JsonProperty("last_modified_date") OffsetDateTime lastModifiedDate) {
+public record StackUserResponse(@JsonProperty("items") List<Question> items) {
+    public record Question(
+        @JsonProperty("question_id") String questionId,
+        @JsonProperty("last_activity_date") OffsetDateTime lastActivityDate
+    ) {
+    }
 }
+

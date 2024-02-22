@@ -6,19 +6,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class StackOverFlowHttpClient implements StackClient {
     private final WebClient webClient;
 
-    public static final String DEFAULT_URL = "https://api.stackexchange.com/2.3";
-
-    public StackOverFlowHttpClient() {
-        this(DEFAULT_URL);
-    }
-
     public StackOverFlowHttpClient(String url) {
         this.webClient = WebClient.builder().baseUrl(url).build();
     }
 
     @Override
-    public StackUserResponse fetchUser(String userId) {
-        return this.webClient.get().uri("/users/{userId}?site=stackoverflow", userId)
+    public StackUserResponse fetchQuestion(String id) {
+        return this.webClient.get().uri("/questions/{id}?site=stackoverflow&filter=withbody", id)
             .retrieve().bodyToMono(StackUserResponse.class).block();
     }
 

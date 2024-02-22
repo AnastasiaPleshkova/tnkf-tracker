@@ -10,6 +10,7 @@ import edu.java.models.StackUserResponse;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.util.Collections;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
@@ -30,13 +31,14 @@ public class StackOverFlowHttpClientTest {
 
     @Test
     public void shouldReturnCorrectResponse() throws JsonProcessingException {
-        String userID = "23435413";
+        String id = "33310960";
         ZoneId zoneId = ZoneId.of("Europe/Moscow");
-        OffsetDateTime time = OffsetDateTime.ofInstant(Instant.ofEpochSecond(1707693603), zoneId);
+        OffsetDateTime time = OffsetDateTime.ofInstant(Instant.ofEpochSecond(1653594316), zoneId);
 
-        StackUserResponse response = new StackUserResponse(userID, time);
+        StackUserResponse.Question question = new StackUserResponse.Question(id, time);
+        StackUserResponse response = new StackUserResponse(Collections.singletonList(question));
 
-        String stabUrl = "/users/" + userID + "?site=stackoverflow";
+        String stabUrl = "/questions/" + id + "?site=stackoverflow&filter=withbody";
         stubFor(WireMock.get(stabUrl)
             .willReturn(aResponse()
                 .withStatus(200)
@@ -46,13 +48,15 @@ public class StackOverFlowHttpClientTest {
         String url = "http://localhost:8080";
         StackClient stackOverFlowHttpClient = new StackOverFlowHttpClient(url);
 
-        StackUserResponse actual = stackOverFlowHttpClient.fetchUser(userID);
+        StackUserResponse actual = stackOverFlowHttpClient.fetchQuestion(id);
 
-        assertThat(actual)
-            .extracting(
-                StackUserResponse::userId,
-                x -> x.lastModifiedDate().toZonedDateTime().withZoneSameInstant(zoneId).toOffsetDateTime()
-            )
-            .containsExactly(userID, time);
+        assertThat(actual.items())
+            .isNotNull()
+            .element(0)
+            .satisfies(q -> {
+                assertThat(q.questionId()).isEqualTo(id);
+                assertThat(q.lastActivityDate().atZoneSameInstant(zoneId).toOffsetDateTime())
+                    .isEqualTo(time);
+            });
     }
 }
