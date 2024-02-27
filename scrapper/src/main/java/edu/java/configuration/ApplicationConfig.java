@@ -9,7 +9,8 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 @ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
 public record ApplicationConfig(
-    String githubUrl, String stackoverflowUrl,
+    String githubUrl,
+    String stackoverflowUrl,
     @NotNull
     @Bean
     Scheduler scheduler
