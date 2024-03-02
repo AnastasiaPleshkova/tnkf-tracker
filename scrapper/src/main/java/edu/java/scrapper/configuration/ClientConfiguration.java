@@ -1,36 +1,33 @@
 package edu.java.scrapper.configuration;
 
-import edu.java.scrapper.httpClients.BotHttpClient;
-import edu.java.scrapper.httpClients.GitClient;
-import edu.java.scrapper.httpClients.GitHubHttpClient;
-import edu.java.scrapper.httpClients.StackClient;
-import edu.java.scrapper.httpClients.StackOverFlowHttpClient;
-import org.springframework.beans.factory.annotation.Autowired;
+import edu.java.scrapper.webClients.BotClient;
+import edu.java.scrapper.webClients.BotWebClient;
+import edu.java.scrapper.webClients.GitClient;
+import edu.java.scrapper.webClients.GitHubWebClient;
+import edu.java.scrapper.webClients.StackClient;
+import edu.java.scrapper.webClients.StackOverFlowWebClient;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@RequiredArgsConstructor
 public class ClientConfiguration {
     private final ApplicationConfig applicationConfig;
 
-    @Autowired
-    public ClientConfiguration(ApplicationConfig applicationConfig) {
-        this.applicationConfig = applicationConfig;
-    }
-
     @Bean
     public GitClient githubClient() {
-        return new GitHubHttpClient(applicationConfig.githubUrl());
+        return new GitHubWebClient(applicationConfig.githubUrl());
     }
 
     @Bean
     public StackClient stackoverflowClient() {
-        return new StackOverFlowHttpClient(applicationConfig.stackoverflowUrl());
+        return new StackOverFlowWebClient(applicationConfig.stackoverflowUrl());
     }
 
     @Bean
-    public BotHttpClient botHttpClient() {
-        return new BotHttpClient(applicationConfig.botUrl());
+    public BotClient botClient() {
+        return new BotWebClient(applicationConfig.botUrl());
     }
 
 }

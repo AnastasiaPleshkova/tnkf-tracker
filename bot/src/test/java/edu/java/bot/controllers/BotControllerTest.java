@@ -1,7 +1,7 @@
 package edu.java.bot.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.java.bot.dto.request.LinkUpdateRequest;
+import edu.java.bot.dto.request.controller.LinkUpdateRequest;
 import java.net.URI;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

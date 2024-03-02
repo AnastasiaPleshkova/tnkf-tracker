@@ -11,14 +11,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ExceptionApiHandler {
 
-    @ExceptionHandler(ChatNotFound.class)
+    @ExceptionHandler(ResourceNotFound.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ApiErrorResponse chatNotFoundException(ChatNotFound ex) {
+    public ApiErrorResponse chatNotFoundException(ResourceNotFound ex) {
 
         return new ApiErrorResponse(
-            "Чат не существует",
+            "Ресурс не существует",
             HttpStatus.NOT_FOUND.toString(),
-            "Chat doesn't exist",
+            "Resource doesn't exist",
             ex.getMessage(),
             Arrays.stream(ex.getStackTrace())
                 .map(StackTraceElement::toString)
@@ -34,21 +34,6 @@ public class ExceptionApiHandler {
             "Чат уже зарегистрирован",
             HttpStatus.CONFLICT.toString(),
             "Chat already exists",
-            ex.getMessage(),
-            Arrays.stream(ex.getStackTrace())
-                .map(StackTraceElement::toString)
-                .toArray(String[]::new)
-        );
-    }
-
-    @ExceptionHandler(LinkNotFound.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ApiErrorResponse linkNotFoundException(LinkNotFound ex) {
-
-        return new ApiErrorResponse(
-            "Ссылка не найдена",
-            HttpStatus.NOT_FOUND.toString(),
-            "Link doesn't exist",
             ex.getMessage(),
             Arrays.stream(ex.getStackTrace())
                 .map(StackTraceElement::toString)

@@ -1,9 +1,8 @@
 package edu.java.scrapper.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.java.scrapper.dto.request.LinkRequest;
+import edu.java.scrapper.dto.request.controller.LinkRequest;
 import java.net.URI;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,12 +17,7 @@ public class ScrapperControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private static ObjectMapper objectMapper;
-
-    @BeforeAll
-    static void init() {
-        objectMapper = new ObjectMapper();
-    }
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     void registerChat_Successful() throws Exception {
