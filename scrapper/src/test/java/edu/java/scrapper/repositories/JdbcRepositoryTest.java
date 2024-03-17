@@ -45,7 +45,7 @@ class JdbcRepositoryTest extends IntegrationTest {
         );
 
         String url = "https://github.com/AnastasiaPleshkova/tnkf-tracker";
-        LinkDto linkDto = new LinkDto(url, time.minusDays(100), time, admin);
+        LinkDto linkDto = new LinkDto(url,"", "", "",(long) 0, time.minusDays(100), (long) 0,time, admin);
 
         linkRepository.addLink(linkDto);
         Link link = linkRepository.find(url).orElseThrow();

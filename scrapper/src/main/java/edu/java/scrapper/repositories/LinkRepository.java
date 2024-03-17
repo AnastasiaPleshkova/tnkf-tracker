@@ -26,4 +26,8 @@ public interface LinkRepository {
     void remove(long chatId, long linkId);
 
     void updateLinkCheckTime(long id, OffsetDateTime time);
+
+    void updateLinkCommitsCount(long id, long commits);
+
+    void updateLinkAnswersCount(long id, long answers);
 }

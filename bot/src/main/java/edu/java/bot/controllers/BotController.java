@@ -19,7 +19,8 @@ public class BotController {
 
     @PostMapping("/updates")
     public String sendUpdates(@Valid @RequestBody LinkUpdateRequest linkUpdate) {
-        String message = "Тут обновление по отслеживаемой ссылке " + linkUpdate.url();
+
+        String message = linkUpdate.description();
         log.info(message);
 
         Arrays.stream(linkUpdate.tgChatIds())

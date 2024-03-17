@@ -13,7 +13,11 @@ create table link
 (
     id              bigint generated always as identity,
     url             text                     not null,
-
+    question_id     text                             ,
+    owner_name      text                             ,
+    repository_name text                             ,
+    answer_count    bigint                           ,
+    commits_count   bigint                           ,
     last_check_time timestamp with time zone not null,
 
     created_at      timestamp with time zone not null,

@@ -55,7 +55,7 @@ public class ScrapperControllerTest {
         long id = 123;
         URI uri = new URI("example.com");
         LinkRequest request = new LinkRequest(uri);
-        Link link = new Link(id, uri.toString(), OffsetDateTime.now(), OffsetDateTime.now(),"");
+        Link link = new Link(id, uri.toString(), "", "", "", (long) 0, OffsetDateTime.now(), (long) 0,OffsetDateTime.now(),"");
 
         when(linkService.add(id, uri)).thenReturn(link);
         mockMvc.perform(MockMvcRequestBuilders.post("/api/links")
@@ -70,7 +70,7 @@ public class ScrapperControllerTest {
         long id = 123;
         URI uri = new URI("example.com");
         LinkRequest request = new LinkRequest(uri);
-        Link link = new Link(id, uri.toString(), OffsetDateTime.now(), OffsetDateTime.now(),"");
+        Link link = new Link(id, uri.toString(), "", "", "", (long) 0, OffsetDateTime.now(), (long) 0,OffsetDateTime.now(),"");
 
         when(linkService.remove(id, uri)).thenReturn(link);
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/links")

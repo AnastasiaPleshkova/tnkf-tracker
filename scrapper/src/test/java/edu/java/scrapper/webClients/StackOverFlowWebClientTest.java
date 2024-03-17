@@ -35,7 +35,7 @@ public class StackOverFlowWebClientTest {
         ZoneId zoneId = ZoneId.of("Europe/Moscow");
         OffsetDateTime time = OffsetDateTime.ofInstant(Instant.ofEpochSecond(1653594316), zoneId);
 
-        StackUserResponse.Question question = new StackUserResponse.Question(id, time);
+        StackUserResponse.Question question = new StackUserResponse.Question(id, time, 0);
         StackUserResponse response = new StackUserResponse(Collections.singletonList(question));
 
         String stabUrl = "/questions/" + id + "?site=stackoverflow&filter=withbody";

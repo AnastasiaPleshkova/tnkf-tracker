@@ -57,15 +57,30 @@ public class LinkRepositoryImpl implements LinkRepository {
 
     @Transactional
     public void addLink(LinkDto linkDto) {
-        jdbcTemplate.update(
-            "INSERT INTO link (url, last_check_time, created_at, created_by) VALUES (?,?,?,?)",
-            linkDto.getUrl(), linkDto.getLastCheckTime(), linkDto.getCreatedAt(), linkDto.getCreatedBy()
+        jdbcTemplate.update("""
+                INSERT INTO link (url, question_id, owner_name, repository_name, answer_count,
+                commits_count, last_check_time, created_at, created_by) VALUES (?,?,?,?,?,?,?,?,?)
+                """,
+            linkDto.getUrl(), linkDto.getQuestionId(), linkDto.getOwnerName(), linkDto.getRepositoryName(),
+            linkDto.getAnswerCount(), linkDto.getCommitsCount(),
+            linkDto.getLastCheckTime(), linkDto.getCreatedAt(), linkDto.getCreatedBy()
         );
+
     }
 
     @Transactional
     public void updateLinkCheckTime(long id, OffsetDateTime time) {
         jdbcTemplate.update("UPDATE link SET last_check_time = ? WHERE id = ?", time, id);
+    }
+
+    @Transactional
+    public void updateLinkCommitsCount(long id, long commits) {
+        jdbcTemplate.update("UPDATE link SET commits_count = ? WHERE id = ?", commits, id);
+    }
+
+    @Transactional
+    public void updateLinkAnswersCount(long id, long answers) {
+        jdbcTemplate.update("UPDATE link SET answers_count = ? WHERE id = ?", answers, id);
     }
 
     @Transactional
