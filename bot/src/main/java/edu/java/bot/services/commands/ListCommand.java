@@ -6,24 +6,19 @@ import com.pengrad.telegrambot.request.SendMessage;
 import edu.java.bot.services.UrlService;
 import java.util.List;
 import lombok.EqualsAndHashCode;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @EqualsAndHashCode
+@RequiredArgsConstructor
 public class ListCommand implements Command {
     private final UrlService urlService;
 
     public static final String NAME = "/list";
-
     public static final String DESCRIPTION = "Получить список отслеживаемых ссылок";
     public static final String MESSAGE = "*Список отслеживаемых ссылок:*\n";
     public static final String MESSAGE_FOR_EMPTY_LIST = "_Отслеживаемых ссылок пока нет_";
-
-    @Autowired
-    public ListCommand(UrlService urlService) {
-        this.urlService = urlService;
-    }
 
     @Override
     public String getCommandName() {
@@ -41,16 +36,15 @@ public class ListCommand implements Command {
         StringBuilder answer = new StringBuilder();
 
         try {
-            List<String> urls = urlService.getLinksByUser(chatId);
-            if (urls.isEmpty()) {
+            List<String> linksByUser = urlService.getLinksByUser(chatId);
+            if (linksByUser.size() == 0) {
                 return new SendMessage(chatId, MESSAGE_FOR_EMPTY_LIST).parseMode(ParseMode.Markdown);
             }
             answer.append(MESSAGE);
-            urls.forEach(url -> answer.append("● ").append(url).append(System.lineSeparator()));
+            linksByUser.forEach(url -> answer.append("● ").append(url).append(System.lineSeparator()));
         } catch (IllegalArgumentException exception) {
             answer.append(exception.getMessage());
         }
-
         return new SendMessage(chatId, answer.toString()).parseMode(ParseMode.Markdown);
     }
 }

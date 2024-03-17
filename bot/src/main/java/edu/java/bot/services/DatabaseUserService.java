@@ -1,28 +1,23 @@
 package edu.java.bot.services;
 
-import edu.java.bot.models.User;
-import java.util.HashMap;
-import java.util.Map;
+import edu.java.bot.webClients.ScrapperClient;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class DatabaseUserService implements UserService {
-    private final UrlService urlService;
-    private Map<Long, User> tempUserMap;  // TODO remove after config connection to db
-
-    public DatabaseUserService(UrlService urlService) {
-        this.urlService = urlService;
-    }
+    private final ScrapperClient scrapperClient;
 
     @Override
     public void add(long chatId) {
-        if (tempUserMap == null) {
-            tempUserMap = new HashMap<>();
+        try {
+            scrapperClient.registerChat(String.valueOf(chatId));
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
         }
-        tempUserMap.put(chatId, new User(chatId));
-        urlService.addUser(chatId);
         log.info("Создали нового пользователя с id " + chatId);
     }
 }

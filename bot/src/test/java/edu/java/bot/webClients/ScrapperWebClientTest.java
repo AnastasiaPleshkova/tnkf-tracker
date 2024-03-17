@@ -9,6 +9,7 @@ import edu.java.bot.dto.response.client.LinkResponse;
 import edu.java.bot.dto.response.client.ListLinksResponse;
 import java.net.URI;
 import java.net.URISyntaxException;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -21,14 +22,17 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 public class ScrapperWebClientTest {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
     @Test
-    void getLinksCorrectRequest() throws JsonProcessingException, URISyntaxException {
+    @SneakyThrows
+    void getLinksCorrectRequest() {
         String url = "http://localhost:8080/";
-        String stabUrl = "/links";
-        URI uri = new URI("github.com");
-        LinkResponse[] linkResponse = new LinkResponse[] {new LinkResponse(9999L, uri)};
+        String stabUrl = "/api/links";
+        long id = 999;
+        LinkResponse[] linkResponse = new LinkResponse[] {new LinkResponse(id, new URI("github.com"))};
         ListLinksResponse response =
             new ListLinksResponse(linkResponse, linkResponse.length);
+
         stubFor(WireMock.get(stabUrl)
             .withHeader("Tg-Chat-Id", equalTo("999"))
             .willReturn(aResponse()
@@ -37,19 +41,19 @@ public class ScrapperWebClientTest {
                 .withBody(objectMapper.writeValueAsString(response))));
 
         ScrapperWebClient scrapperWebClient = new ScrapperWebClient(url);
+
         ListLinksResponse actualResponse = scrapperWebClient.getLinks(String.valueOf(999));
-
         assertThat(actualResponse.links()).isEqualTo(response.links());
-
     }
 
     @Test
     void addLinksCorrectRequest() throws JsonProcessingException, URISyntaxException {
         String url = "http://localhost:8080/";
-        String stabUrl = "/links";
+        String stabUrl = "/api/links";
         URI uri = new URI("github.com");
+        long id = 999;
         LinkRequest request = new LinkRequest(uri);
-        LinkResponse response = new LinkResponse(999L, uri);
+        LinkResponse response = new LinkResponse(id, uri);
 
         stubFor(WireMock.post(stabUrl)
             .withHeader("Tg-Chat-Id", equalTo("999"))
@@ -70,10 +74,11 @@ public class ScrapperWebClientTest {
     @Test
     void deleteLinksCorrectRequest() throws JsonProcessingException, URISyntaxException {
         String url = "http://localhost:8080/";
-        String stabUrl = "/links";
+        String stabUrl = "/api/links";
+        long id = 999;
         URI uri = new URI("github.com");
         LinkRequest request = new LinkRequest(uri);
-        LinkResponse response = new LinkResponse(999L, uri);
+        LinkResponse response = new LinkResponse(id, uri);
 
         stubFor(WireMock.delete(stabUrl)
             .withHeader("Tg-Chat-Id", equalTo("999"))
@@ -94,7 +99,7 @@ public class ScrapperWebClientTest {
     @Test
     void addChatCorrectRequest() {
         String url = "http://localhost:8080/";
-        String stabUrl = "/tg-chat/999";
+        String stabUrl = "/api/tg-chat/999";
 
         stubFor(WireMock.post(stabUrl)
             .willReturn(aResponse()
@@ -109,7 +114,7 @@ public class ScrapperWebClientTest {
     @Test
     void deleteChatCorrectRequest() {
         String url = "http://localhost:8080/";
-        String stabUrl = "/tg-chat/999";
+        String stabUrl = "/api/tg-chat/999";
 
         stubFor(WireMock.delete(stabUrl)
             .willReturn(aResponse()
