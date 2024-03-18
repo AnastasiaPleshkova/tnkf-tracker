@@ -5,7 +5,7 @@ import edu.java.scrapper.dto.request.client.LinkUpdateRequest;
 import edu.java.scrapper.dto.response.client.StackUserResponse;
 import edu.java.scrapper.models.Chat;
 import edu.java.scrapper.models.Link;
-import edu.java.scrapper.repositories.LinkRepository;
+import edu.java.scrapper.repositories.jooq.JooqLinkRepository;
 import edu.java.scrapper.services.LinkUpdater;
 import edu.java.scrapper.webClients.BotClient;
 import edu.java.scrapper.webClients.GitClient;
@@ -27,7 +27,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
     private static final String COMMITS = "Изменилось количество коммитов у ссылки ";
     private static final String SOME_CHANGES = "Что-то изменилось у ссылки ";
     private static final String ANSWERS = "Изменилось количество ответов у ссылки ";
-    private final LinkRepository linkRepository;
+    private final JooqLinkRepository linkRepository;
     private final GitClient gitClient;
     private final StackClient stackClient;
     private final BotClient botClient;

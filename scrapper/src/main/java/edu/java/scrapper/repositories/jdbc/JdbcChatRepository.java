@@ -1,7 +1,8 @@
-package edu.java.scrapper.repositories;
+package edu.java.scrapper.repositories.jdbc;
 
 import edu.java.scrapper.dto.dao.ChatDto;
 import edu.java.scrapper.models.Chat;
+import edu.java.scrapper.repositories.ChatRepository;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Repository
 @Transactional(readOnly = true)
-public class ChatRepositoryImpl implements ChatRepository {
+public class JdbcChatRepository implements ChatRepository {
     public static final String GET_ALL = "SELECT * FROM chat";
 
     private final JdbcTemplate jdbcTemplate;

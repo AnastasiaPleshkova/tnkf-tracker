@@ -2,7 +2,7 @@ package edu.java.scrapper.services.jdbc;
 
 import edu.java.scrapper.dto.dao.ChatDto;
 import edu.java.scrapper.exceptions.ChatAlreadyRegistered;
-import edu.java.scrapper.repositories.ChatRepository;
+import edu.java.scrapper.repositories.jooq.JooqChatRepository;
 import edu.java.scrapper.services.ChatService;
 import java.time.OffsetDateTime;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class JdbcChatService implements ChatService {
-    private final ChatRepository chatRepository;
+
+    private final JooqChatRepository chatRepository;
 
     @Override
     public void register(long tgChatId) {

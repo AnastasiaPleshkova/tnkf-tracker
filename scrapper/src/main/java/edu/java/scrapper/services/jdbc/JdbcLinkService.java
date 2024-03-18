@@ -7,8 +7,8 @@ import edu.java.scrapper.exceptions.ResourceNotFound;
 import edu.java.scrapper.exceptions.UnsupportedLink;
 import edu.java.scrapper.models.Chat;
 import edu.java.scrapper.models.Link;
-import edu.java.scrapper.repositories.ChatRepository;
-import edu.java.scrapper.repositories.LinkRepository;
+import edu.java.scrapper.repositories.jooq.JooqChatRepository;
+import edu.java.scrapper.repositories.jooq.JooqLinkRepository;
 import edu.java.scrapper.services.LinkService;
 import edu.java.scrapper.webClients.GitClient;
 import edu.java.scrapper.webClients.StackClient;
@@ -27,8 +27,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 public class JdbcLinkService implements LinkService {
-    private final LinkRepository linkRepository;
-    private final ChatRepository chatRepository;
+    private final JooqLinkRepository linkRepository;
+    private final JooqChatRepository chatRepository;
     private final StackClient stackClient;
     private final GitClient gitClient;
 

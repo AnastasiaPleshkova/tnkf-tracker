@@ -18,11 +18,11 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-class JdbcRepositoryTest extends IntegrationTest {
-    @Qualifier("jdbcChatRepository")
+class JooqRepositoryTest extends IntegrationTest {
+    @Qualifier("jooqChatRepository")
     @Autowired
     private ChatRepository chatRepository;
-    @Qualifier("jdbcLinkRepository")
+    @Qualifier("jooqLinkRepository")
     @Autowired
     private LinkRepository linkRepository;
 
@@ -48,7 +48,7 @@ class JdbcRepositoryTest extends IntegrationTest {
         );
 
         String url = "https://github.com/AnastasiaPleshkova/tnkf-tracker";
-        LinkDto linkDto = new LinkDto(url,"", "", "",(long) 0, time.minusDays(100), (long) 0,time, admin);
+        LinkDto linkDto = new LinkDto(url, "", "", "", (long) 0, time.minusDays(100), (long) 0, time, admin);
 
         linkRepository.addLink(linkDto);
         Link link = linkRepository.find(url).orElseThrow();
@@ -93,3 +93,4 @@ class JdbcRepositoryTest extends IntegrationTest {
     }
 
 }
+

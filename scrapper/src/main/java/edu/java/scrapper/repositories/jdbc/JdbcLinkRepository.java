@@ -1,8 +1,9 @@
-package edu.java.scrapper.repositories;
+package edu.java.scrapper.repositories.jdbc;
 
 import edu.java.scrapper.dto.dao.LinkDto;
 import edu.java.scrapper.models.Chat;
 import edu.java.scrapper.models.Link;
+import edu.java.scrapper.repositories.LinkRepository;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -15,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class LinkRepositoryImpl implements LinkRepository {
+public class JdbcLinkRepository implements LinkRepository {
     private static final String GET_ALL_LINK = "SELECT * FROM link";
     private static final String WHERE_URL = " WHERE url = ?";
     private static final String GET_ALL_JOIN = """
@@ -80,7 +81,7 @@ public class LinkRepositoryImpl implements LinkRepository {
 
     @Transactional
     public void updateLinkAnswersCount(long id, long answers) {
-        jdbcTemplate.update("UPDATE link SET answers_count = ? WHERE id = ?", answers, id);
+        jdbcTemplate.update("UPDATE link SET answer_count = ? WHERE id = ?", answers, id);
     }
 
     @Transactional
