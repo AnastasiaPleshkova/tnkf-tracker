@@ -5,13 +5,13 @@ import edu.java.scrapper.dto.dao.LinkDto;
 import edu.java.scrapper.models.Chat;
 import edu.java.scrapper.models.Link;
 import edu.java.scrapper.repositories.LinkRepository;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.jooq.DSLContext;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -56,10 +56,10 @@ public class JooqLinkRepository implements LinkRepository {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<Link> findByLastCheck(OffsetDateTime time) {
+    public List<Link> findByLastCheckLimit(int value) {
         return dslContext.selectFrom(Tables.LINK)
-            .where(Tables.LINK.LAST_CHECK_TIME.lt(time))
+            .orderBy(Tables.LINK.LAST_CHECK_TIME)
+            .limit(value)
             .fetchInto(Link.class);
     }
 
@@ -74,6 +74,7 @@ public class JooqLinkRepository implements LinkRepository {
             .set(Tables.LINK.ANSWER_COUNT, linkDto.getAnswerCount())
             .set(Tables.LINK.COMMITS_COUNT, linkDto.getCommitsCount())
             .set(Tables.LINK.LAST_CHECK_TIME, linkDto.getLastCheckTime())
+            .set(Tables.LINK.UPDATED_AT, linkDto.getUpdatedAt())
             .set(Tables.LINK.CREATED_AT, linkDto.getCreatedAt())
             .set(Tables.LINK.CREATED_BY, linkDto.getCreatedBy())
             .execute();
@@ -82,8 +83,8 @@ public class JooqLinkRepository implements LinkRepository {
 
     @Override
     @Transactional
-    public void add(long chatId, long linkId) {
-        dslContext.insertInto(Tables.CHAT_LINK_MAPPING)
+    public int add(long chatId, long linkId) {
+        return dslContext.insertInto(Tables.CHAT_LINK_MAPPING)
             .set(Tables.CHAT_LINK_MAPPING.CHAT_ID, chatId)
             .set(Tables.CHAT_LINK_MAPPING.LINK_ID, linkId)
             .execute();
@@ -91,8 +92,8 @@ public class JooqLinkRepository implements LinkRepository {
 
     @Override
     @Transactional
-    public void remove(long chatId, long linkId) {
-        dslContext.deleteFrom(Tables.CHAT_LINK_MAPPING)
+    public int remove(long chatId, long linkId) {
+        return dslContext.deleteFrom(Tables.CHAT_LINK_MAPPING)
             .where(Tables.CHAT_LINK_MAPPING.CHAT_ID.eq(chatId)
                 .and(Tables.CHAT_LINK_MAPPING.LINK_ID.eq(linkId)))
             .execute();
@@ -103,6 +104,14 @@ public class JooqLinkRepository implements LinkRepository {
     public void updateLinkCheckTime(long id, OffsetDateTime time) {
         dslContext.update(Tables.LINK)
             .set(Tables.LINK.LAST_CHECK_TIME, time)
+            .where(Tables.LINK.ID.eq(id))
+            .execute();
+    }
+
+    @Override
+    public void updateUpdatedAtTime(long id, OffsetDateTime time) {
+        dslContext.update(Tables.LINK)
+            .set(Tables.LINK.UPDATED_AT, time)
             .where(Tables.LINK.ID.eq(id))
             .execute();
     }

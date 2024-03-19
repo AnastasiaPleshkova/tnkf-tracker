@@ -25,7 +25,7 @@ public class BotController {
 
         Arrays.stream(linkUpdate.tgChatIds())
             .map(id -> new SendMessage(id, message))
-            .forEach(x -> myBot.getTelegramBot().execute(x));
+            .forEach(myBot::executeMessage);
 
         return linkUpdate.tgChatIds().length + " пользователям отправлено обновление от ссылки " + linkUpdate.url();
     }

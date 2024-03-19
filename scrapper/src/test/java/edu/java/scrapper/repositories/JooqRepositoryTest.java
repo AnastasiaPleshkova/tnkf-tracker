@@ -1,5 +1,6 @@
 package edu.java.scrapper.repositories;
 
+
 import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.dto.dao.ChatDto;
 import edu.java.scrapper.dto.dao.LinkDto;
@@ -8,6 +9,7 @@ import edu.java.scrapper.models.Link;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
@@ -33,7 +36,7 @@ class JooqRepositoryTest extends IntegrationTest {
         long chatId1 = 1111;
         long chatId2 = 2222;
         String admin = "admin";
-        OffsetDateTime time = OffsetDateTime.of(2024, 3, 14, 9, 55, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime time = OffsetDateTime.now().withNano(0);
         ChatDto chatDto1 = new ChatDto(chatId1, time, admin);
         ChatDto chatDto2 = new ChatDto(chatId2, time, admin);
 
@@ -47,8 +50,8 @@ class JooqRepositoryTest extends IntegrationTest {
             () -> assertTrue(result.stream().anyMatch(x -> x.getTgChatId().equals(chatId2)))
         );
 
-        String url = "https://github.com/AnastasiaPleshkova/tnkf-tracker";
-        LinkDto linkDto = new LinkDto(url, "", "", "", (long) 0, time.minusDays(100), (long) 0, time, admin);
+        String url = "https://github.com/AnastasiaPleshkova/sensorsReaderREST";
+        LinkDto linkDto = new LinkDto(url, "", "", "", (long) 0, time.minusDays(100),time, (long) 0, time, admin);
 
         linkRepository.addLink(linkDto);
         Link link = linkRepository.find(url).orElseThrow();
@@ -90,6 +93,37 @@ class JooqRepositoryTest extends IntegrationTest {
 
         );
 
+    }
+
+
+    @Test
+    @Transactional
+    @Rollback
+    void removeUserWithActiveLinksTest() {
+        long chatId1 = 1111;
+        String admin = "admin";
+        OffsetDateTime time = OffsetDateTime.of(2024, 3, 14, 9, 55, 0, 0, ZoneOffset.UTC);
+        ChatDto chatDto1 = new ChatDto(chatId1, time, admin);
+
+        chatRepository.add(chatDto1);
+
+        Optional<Chat> createdChat = chatRepository.find(chatId1);
+        assertTrue(createdChat.isPresent());
+
+        String url = "https://github.com/AnastasiaPleshkova/GetNASAPictureBot";
+        LinkDto linkDto = new LinkDto(url,"", "", "",(long) 0, time.minusDays(100), time,(long) 0,time, admin);
+
+        linkRepository.addLink(linkDto);
+        Link link = linkRepository.find(url).orElseThrow();
+
+        linkRepository.add(createdChat.get().getId(), link.getId());
+
+        assertAll(
+            () -> assertTrue(linkRepository.findByChatId(chatId1).stream()
+                .anyMatch(x -> x.getUrl().equals(link.getUrl()))),
+            () -> assertDoesNotThrow(() -> chatRepository.remove(chatId1)),
+            () -> assertTrue(chatRepository.find(chatId1).isEmpty())
+        );
     }
 
 }

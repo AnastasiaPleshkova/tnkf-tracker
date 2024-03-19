@@ -13,4 +13,6 @@ public interface LinkService {
     Collection<Link> listAll(long tgChatId);
 
     Collection<Chat> listAllChats(URI url);
+
+    Link findOrCreate(String url);
 }

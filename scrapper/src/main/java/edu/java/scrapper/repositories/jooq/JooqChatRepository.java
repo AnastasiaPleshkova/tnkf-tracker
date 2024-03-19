@@ -19,11 +19,10 @@ public class JooqChatRepository implements ChatRepository {
     @Override
     @Transactional(readOnly = true)
     public Optional<Chat> find(long tgChatId) {
-        Chat chat = dslContext
+        return dslContext
             .selectFrom(Tables.CHAT)
-            .where(Tables.CHAT.ID.eq(tgChatId))
-            .fetchOneInto(Chat.class);
-        return Optional.ofNullable(chat);
+            .where(Tables.CHAT.TG_CHAT_ID.eq(tgChatId))
+            .fetchInto(Chat.class).stream().findAny();
     }
 
     @Override
@@ -36,8 +35,8 @@ public class JooqChatRepository implements ChatRepository {
 
     @Override
     @Transactional
-    public void add(ChatDto chatDto) {
-        dslContext
+    public int add(ChatDto chatDto) {
+        return dslContext
             .insertInto(Tables.CHAT)
             .set(Tables.CHAT.TG_CHAT_ID, chatDto.getTgChatId())
             .set(Tables.CHAT.CREATED_AT, chatDto.getCreatedAt())
@@ -47,10 +46,10 @@ public class JooqChatRepository implements ChatRepository {
 
     @Override
     @Transactional
-    public void remove(long tgChatId) {
-        dslContext
+    public int remove(long tgChatId) {
+        return dslContext
             .deleteFrom(Tables.CHAT)
-            .where(Tables.CHAT.ID.eq(tgChatId))
+            .where(Tables.CHAT.TG_CHAT_ID.eq(tgChatId))
             .execute();
     }
 }

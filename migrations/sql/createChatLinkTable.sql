@@ -18,8 +18,8 @@ create table link
     repository_name text                             ,
     answer_count    bigint                           ,
     commits_count   bigint                           ,
+    updated_at      timestamp with time zone not null,
     last_check_time timestamp with time zone not null,
-
     created_at      timestamp with time zone not null,
     created_by      text                     not null,
 

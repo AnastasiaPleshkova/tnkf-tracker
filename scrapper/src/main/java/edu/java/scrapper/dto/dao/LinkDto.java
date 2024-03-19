@@ -15,6 +15,7 @@ public class LinkDto {
     private String repositoryName;
     private Long answerCount;
     private OffsetDateTime lastCheckTime;
+    private OffsetDateTime updatedAt;
     private Long commitsCount;
     private OffsetDateTime createdAt;
     private String createdBy;

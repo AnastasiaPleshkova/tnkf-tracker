@@ -31,13 +31,11 @@ public class Start implements Command {
     @Override
     public SendMessage process(Update update) {
         long chatId = update.message().chat().id();
-        String message;
         try {
             userService.add(chatId);
-            message = MESSAGE;
+            return new SendMessage(chatId, MESSAGE);
         } catch (IllegalArgumentException e) {
-            message = FAIL;
+            return new SendMessage(chatId, FAIL);
         }
-        return new SendMessage(chatId, message);
     }
 }

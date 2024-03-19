@@ -17,15 +17,17 @@ public interface LinkRepository {
 
     List<Chat> findByUrl(String url);
 
-    List<Link> findByLastCheck(OffsetDateTime time);
+    List<Link> findByLastCheckLimit(int value);
 
     void addLink(LinkDto linkDto);
 
-    void add(long chatId, long linkId);
+    int add(long chatId, long linkId);
 
-    void remove(long chatId, long linkId);
+    int remove(long chatId, long linkId);
 
     void updateLinkCheckTime(long id, OffsetDateTime time);
+
+    void updateUpdatedAtTime(long id, OffsetDateTime time);
 
     void updateLinkCommitsCount(long id, long commits);
 

@@ -13,10 +13,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @RequiredArgsConstructor
 public class SchedulerConfig {
     private final LinkUpdater linkUpdater;
+    private final ApplicationConfig applicationConfig;
 
     @Bean
     @ConditionalOnProperty(name = "app.scheduler.enabled", matchIfMissing = true)
     public LinkUpdaterScheduler linkUpdaterScheduler() {
-        return new LinkUpdaterScheduler(linkUpdater);
+        return new LinkUpdaterScheduler(linkUpdater, applicationConfig.maxUpdatedRecordsValue());
     }
 }

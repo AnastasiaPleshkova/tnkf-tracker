@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class JdbcLinkRepository implements LinkRepository {
     private static final String GET_ALL_LINK = "SELECT * FROM link";
     private static final String WHERE_URL = " WHERE url = ?";
@@ -27,16 +26,19 @@ public class JdbcLinkRepository implements LinkRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
+    @Transactional(readOnly = true)
     public Optional<Link> find(String url) {
         return jdbcTemplate.query(GET_ALL_LINK + WHERE_URL,
             new Object[] {url}, new BeanPropertyRowMapper<>(Link.class)
         ).stream().findAny();
     }
 
+    @Transactional(readOnly = true)
     public List<Link> findAll() {
         return jdbcTemplate.query(GET_ALL_LINK, new BeanPropertyRowMapper<>(Link.class));
     }
 
+    @Transactional(readOnly = true)
     public List<Link> findByChatId(long tgChatId) {
         return jdbcTemplate.query(
             GET_ALL_JOIN + " WHERE tg_chat_id = ?",
@@ -44,15 +46,18 @@ public class JdbcLinkRepository implements LinkRepository {
         );
     }
 
+    @Transactional(readOnly = true)
     public List<Chat> findByUrl(String url) {
         return jdbcTemplate.query(GET_ALL_JOIN + WHERE_URL,
             new Object[] {url}, new BeanPropertyRowMapper<>(Chat.class)
         );
     }
 
-    public List<Link> findByLastCheck(OffsetDateTime time) {
-        return jdbcTemplate.query(GET_ALL_LINK + " WHERE last_check_time < ?",
-            new Object[] {time}, new BeanPropertyRowMapper<>(Link.class)
+    @Transactional(readOnly = true)
+    public List<Link> findByLastCheckLimit(int value) {
+        return jdbcTemplate.query(GET_ALL_LINK
+                + " ORDER BY last_check_time LIMIT ?",
+            new Object[] {value}, new BeanPropertyRowMapper<>(Link.class)
         );
     }
 
@@ -60,18 +65,25 @@ public class JdbcLinkRepository implements LinkRepository {
     public void addLink(LinkDto linkDto) {
         jdbcTemplate.update("""
                 INSERT INTO link (url, question_id, owner_name, repository_name, answer_count,
-                commits_count, last_check_time, created_at, created_by) VALUES (?,?,?,?,?,?,?,?,?)
+                commits_count,updated_at, last_check_time, created_at, created_by) VALUES (?,?,?,?,?,?,?,?,?,?)
                 """,
             linkDto.getUrl(), linkDto.getQuestionId(), linkDto.getOwnerName(), linkDto.getRepositoryName(),
-            linkDto.getAnswerCount(), linkDto.getCommitsCount(),
+            linkDto.getAnswerCount(), linkDto.getCommitsCount(), linkDto.getUpdatedAt(),
             linkDto.getLastCheckTime(), linkDto.getCreatedAt(), linkDto.getCreatedBy()
         );
 
     }
 
+    @Override
     @Transactional
     public void updateLinkCheckTime(long id, OffsetDateTime time) {
         jdbcTemplate.update("UPDATE link SET last_check_time = ? WHERE id = ?", time, id);
+    }
+
+    @Override
+    @Transactional
+    public void updateUpdatedAtTime(long id, OffsetDateTime time) {
+        jdbcTemplate.update("UPDATE link SET updated_at_time = ? WHERE id = ?", time, id);
     }
 
     @Transactional
@@ -85,14 +97,14 @@ public class JdbcLinkRepository implements LinkRepository {
     }
 
     @Transactional
-    public void add(long chatId, long linkId) {
-        jdbcTemplate.update(
+    public int add(long chatId, long linkId) {
+        return jdbcTemplate.update(
             "INSERT INTO chat_link_mapping (chat_id, link_id) VALUES (?,?)", chatId, linkId
         );
     }
 
     @Transactional
-    public void remove(long chatId, long linkId) {
-        jdbcTemplate.update("DELETE FROM chat_link_mapping WHERE chat_id=? AND link_id=?", chatId, linkId);
+    public int remove(long chatId, long linkId) {
+        return jdbcTemplate.update("DELETE FROM chat_link_mapping WHERE chat_id=? AND link_id=?", chatId, linkId);
     }
 }

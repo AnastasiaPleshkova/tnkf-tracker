@@ -13,31 +13,33 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Repository
-@Transactional(readOnly = true)
 public class JdbcChatRepository implements ChatRepository {
     public static final String GET_ALL = "SELECT * FROM chat";
 
     private final JdbcTemplate jdbcTemplate;
 
+    @Transactional(readOnly = true)
     public Optional<Chat> find(long tgChatId) {
         return jdbcTemplate.query(GET_ALL + " WHERE tg_chat_id=?", new Object[] {tgChatId},
             new BeanPropertyRowMapper<>(Chat.class)
         ).stream().findAny();
     }
 
+    @Transactional(readOnly = true)
     public List<Chat> findAll() {
         return jdbcTemplate.query(GET_ALL, new BeanPropertyRowMapper<>(Chat.class));
     }
 
     @Transactional
-    public void add(ChatDto chatDto) {
-        jdbcTemplate.update("INSERT INTO chat (tg_chat_id, created_at, created_by) VALUES (?,?,?)",
+    public int add(ChatDto chatDto) {
+        return jdbcTemplate.update("INSERT INTO chat (tg_chat_id, created_at, created_by) VALUES (?,?,?)",
             chatDto.getTgChatId(), chatDto.getCreatedAt(), chatDto.getCreatedBy()
         );
     }
 
     @Transactional
-    public void remove(long tgChatId) {
-        jdbcTemplate.update("DELETE FROM chat WHERE tg_chat_id=?", tgChatId);
+    public int remove(long tgChatId) {
+
+        return jdbcTemplate.update("DELETE FROM chat WHERE tg_chat_id=?", tgChatId);
     }
 }

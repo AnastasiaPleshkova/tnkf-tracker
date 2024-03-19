@@ -2,13 +2,14 @@ package edu.java.scrapper.services.jdbc;
 
 import edu.java.scrapper.dto.dao.LinkDto;
 import edu.java.scrapper.dto.response.client.GitCommitsResponse;
+import edu.java.scrapper.dto.response.client.GitUserResponse;
 import edu.java.scrapper.exceptions.LinkAlreadyTracked;
 import edu.java.scrapper.exceptions.ResourceNotFound;
 import edu.java.scrapper.exceptions.UnsupportedLink;
 import edu.java.scrapper.models.Chat;
 import edu.java.scrapper.models.Link;
-import edu.java.scrapper.repositories.jooq.JooqChatRepository;
-import edu.java.scrapper.repositories.jooq.JooqLinkRepository;
+import edu.java.scrapper.repositories.ChatRepository;
+import edu.java.scrapper.repositories.LinkRepository;
 import edu.java.scrapper.services.LinkService;
 import edu.java.scrapper.webClients.GitClient;
 import edu.java.scrapper.webClients.StackClient;
@@ -19,61 +20,42 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class JdbcLinkService implements LinkService {
-    private final JooqLinkRepository linkRepository;
-    private final JooqChatRepository chatRepository;
+    private final LinkRepository linkRepository;
+    private final ChatRepository chatRepository;
     private final StackClient stackClient;
     private final GitClient gitClient;
+
+    public JdbcLinkService(
+        @Qualifier("jooqLinkRepository") LinkRepository linkRepository,
+        @Qualifier("jooqChatRepository") ChatRepository chatRepository,
+        StackClient stackClient,
+        GitClient gitClient
+    ) {
+        this.linkRepository = linkRepository;
+        this.chatRepository = chatRepository;
+        this.stackClient = stackClient;
+        this.gitClient = gitClient;
+    }
 
     @Override
     public Link add(long chatId, URI url) {
         Chat chat = chatRepository.find(chatId).orElseThrow(ResourceNotFound::new);
-        Optional<Link> link = linkRepository.find(url.toString());
-
-        if (link.isEmpty()) {
-            OffsetDateTime time = OffsetDateTime.now().withNano(0);
-            LinkDto linkToCreate = new LinkDto(url.toString(), "", "", "", (long) 0,
-                time, (long) 0, time, "admin"
-            );
-            if (url.toString().startsWith("https://stackoverflow.com")) {
-                Pattern pattern = Pattern.compile("https://stackoverflow.com/questions/(\\d+)/.*");
-                Matcher matcher = pattern.matcher(url.toString());
-                if (matcher.find()) {
-                    linkToCreate.setQuestionId(matcher.group(1));
-                }
-                int answerCount = stackClient.fetchQuestion(linkToCreate.getQuestionId()).items().get(0).answerCount();
-                linkToCreate.setAnswerCount((long) answerCount);
-            } else if (url.toString().startsWith("https://github.com")) {
-                Pattern pattern = Pattern.compile("https://github.com/([^/]+)/([^/]+)");
-                Matcher matcher = pattern.matcher(url.toString());
-                if (matcher.find()) {
-                    linkToCreate.setOwnerName(matcher.group(1));
-                    linkToCreate.setRepositoryName(matcher.group(2));
-                }
-                GitCommitsResponse[] gitCommitsResponses =
-                    gitClient.fetchUserRepoCommits(linkToCreate.getOwnerName(), linkToCreate.getRepositoryName());
-                linkToCreate.setCommitsCount((long) gitCommitsResponses.length);
-            }
-            linkRepository.addLink(linkToCreate);
-            link = linkRepository.find(url.toString());
-        } else {
-            throw new UnsupportedLink();
-        }
+        Link link = findOrCreate(url.toString());
 
         if (linkRepository.findByChatId(chatId).stream()
             .anyMatch(linkAlreadyTracked -> linkAlreadyTracked.getUrl().equals(url.toString()))) {
             throw new LinkAlreadyTracked();
         }
 
-        linkRepository.add(chat.getId(), link.get().getId());
-        return link.get();
+        linkRepository.add(chat.getId(), link.getId());
+        return link;
     }
 
     @Override
@@ -99,6 +81,59 @@ public class JdbcLinkService implements LinkService {
     @Override
     public Collection<Chat> listAllChats(URI url) {
         return linkRepository.findByUrl(url.toString());
+    }
+
+    public Link findOrCreate(String url) {
+        Optional<Link> link = linkRepository.find(url);
+        if (link.isPresent()) {
+            return link.get();
+        }
+
+        linkRepository.addLink(createDto(url));
+        link = linkRepository.find(url);
+        return link.get();
+    }
+
+    private LinkDto createDto(String url) {
+        OffsetDateTime time = OffsetDateTime.now().withNano(0);
+        LinkDto linkToCreate = new LinkDto(url, "", "", "", (long) 0,
+            time, time, (long) 0, time, "admin"
+        );
+        if (url.startsWith("https://stackoverflow.com")) {
+            setUpStackFields(linkToCreate);
+        } else if (url.startsWith("https://github.com")) {
+            setUpGitFields(linkToCreate);
+
+        } else {
+            throw new UnsupportedLink();
+        }
+        return linkToCreate;
+    }
+
+    private void setUpGitFields(LinkDto linkToCreate) {
+        Pattern pattern = Pattern.compile("https://github.com/([^/]+)/([^/]+)");
+        Matcher matcher = pattern.matcher(linkToCreate.getUrl());
+        if (matcher.find()) {
+            linkToCreate.setOwnerName(matcher.group(1));
+            linkToCreate.setRepositoryName(matcher.group(2));
+        }
+        GitCommitsResponse[] gitCommitsResponses =
+            gitClient.fetchUserRepoCommits(linkToCreate.getOwnerName(), linkToCreate.getRepositoryName());
+        GitUserResponse gitUserResponse =
+            gitClient.fetchUserRepo(linkToCreate.getOwnerName(), linkToCreate.getRepositoryName());
+
+        linkToCreate.setUpdatedAt(gitUserResponse.updatedAt());
+        linkToCreate.setCommitsCount((long) gitCommitsResponses.length);
+    }
+
+    private void setUpStackFields(LinkDto linkToCreate) {
+        Pattern pattern = Pattern.compile("https://stackoverflow.com/questions/(\\d+)/.*");
+        Matcher matcher = pattern.matcher(linkToCreate.getUrl());
+        if (matcher.find()) {
+            linkToCreate.setQuestionId(matcher.group(1));
+        }
+        int answerCount = stackClient.fetchQuestion(linkToCreate.getQuestionId()).items().get(0).answerCount();
+        linkToCreate.setAnswerCount((long) answerCount);
     }
 
 }
