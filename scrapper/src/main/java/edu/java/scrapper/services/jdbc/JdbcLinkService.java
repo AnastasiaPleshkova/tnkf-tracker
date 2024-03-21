@@ -11,7 +11,6 @@ import edu.java.scrapper.services.LinkService;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,36 +24,24 @@ public class JdbcLinkService implements LinkService {
     @Override
     public Link add(long chatId, URI url) {
         Chat chat = chatRepository.find(chatId).orElseThrow(ResourceNotFound::new);
-        Optional<Link> link = linkRepository.find(url.toString());
-
-        if (link.isEmpty()) {
-            OffsetDateTime time = OffsetDateTime.now().withNano(0);
-            linkRepository.addLink(new LinkDto(url.toString(), time, time, "admin"));
-            link = linkRepository.find(url.toString());
-        }
+        Link link = findOrCreate(url.toString());
 
         if (linkRepository.findByChatId(chatId).stream()
             .anyMatch(linkAlreadyTracked -> linkAlreadyTracked.getUrl().equals(url.toString()))) {
             throw new LinkAlreadyTracked();
         }
 
-        linkRepository.add(chat.getId(), link.get().getId());
-        return link.get();
+        linkRepository.add(chat.getId(), link.getId());
+        return link;
     }
 
     @Override
     public Link remove(long chatId, URI url) {
         Chat chat = chatRepository.find(chatId).orElseThrow(ResourceNotFound::new);
-        List<Link> byChatId = linkRepository.findByChatId(chatId);
-        Optional<Link> linkToDelete = byChatId.stream()
-            .filter(x -> x.getUrl().equals(url.toString())).findAny();
+        Link linkToDelete = linkRepository.find(url.toString()).orElseThrow(ResourceNotFound::new);
 
-        if (linkToDelete.isEmpty()) {
-            throw new ResourceNotFound();
-        }
-
-        linkRepository.remove(chat.getId(), linkToDelete.get().getId());
-        return linkToDelete.get();
+        linkRepository.remove(chat.getId(), linkToDelete.getId());
+        return linkToDelete;
     }
 
     @Override
@@ -64,7 +51,24 @@ public class JdbcLinkService implements LinkService {
 
     @Override
     public Collection<Chat> listAllChats(URI url) {
-        return linkRepository.findByUrl(url.toString());
+        return linkRepository.findChatsByUrl(url.toString());
+    }
+
+    public Link findOrCreate(String url) {
+        Optional<Link> link = linkRepository.find(url);
+        if (link.isPresent()) {
+            return link.get();
+        }
+
+        linkRepository.addLink(createDto(url));
+        link = linkRepository.find(url);
+        return link.get();
+    }
+
+    private LinkDto createDto(String url) {
+        OffsetDateTime time = OffsetDateTime.now().withNano(0);
+        LinkDto linkToCreate = new LinkDto(url, time, time, time, "admin");
+        return linkToCreate;
     }
 
 }

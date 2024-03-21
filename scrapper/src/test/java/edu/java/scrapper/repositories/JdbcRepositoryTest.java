@@ -8,12 +8,15 @@ import edu.java.scrapper.models.Link;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
@@ -40,12 +43,13 @@ class JdbcRepositoryTest extends IntegrationTest {
         List<Chat> result = chatRepository.findAll();
 
         assertAll(
-            () -> assertTrue(result.stream().anyMatch(x -> x.getTgChatId().equals(chatId1))),
-            () -> assertTrue(result.stream().anyMatch(x -> x.getTgChatId().equals(chatId2)))
+            () -> assertEquals(2, result.size()),
+            () -> assertTrue(chatRepository.find(chatId1).isPresent()),
+            () -> assertTrue(chatRepository.find(chatId2).isPresent())
         );
 
         String url = "https://github.com/AnastasiaPleshkova/tnkf-tracker";
-        LinkDto linkDto = new LinkDto(url, time.minusDays(100), time, admin);
+        LinkDto linkDto = new LinkDto(url, time, time, time, admin);
 
         linkRepository.addLink(linkDto);
         Link link = linkRepository.find(url).orElseThrow();
@@ -54,10 +58,9 @@ class JdbcRepositoryTest extends IntegrationTest {
         linkRepository.add(result.get(1).getId(), link.getId());
 
         assertAll(
-            () -> assertTrue(linkRepository.findByChatId(chatId1).stream()
-                .anyMatch(x -> x.getUrl().equals(link.getUrl()))),
-            () -> assertTrue(linkRepository.findByChatId(chatId2).stream()
-                .anyMatch(x -> x.getUrl().equals(link.getUrl())))
+            () -> assertTrue(linkRepository.findAll().stream().anyMatch(x->x.getUrl().equals(url))),
+            () -> assertTrue(linkRepository.findChatsByUrl(url).stream().anyMatch(x->x.getTgChatId().equals(chatId1))),
+            () -> assertTrue(linkRepository.findChatsByUrl(url).stream().anyMatch(x->x.getTgChatId().equals(chatId2)))
         );
     }
 
@@ -88,5 +91,63 @@ class JdbcRepositoryTest extends IntegrationTest {
         );
 
     }
+
+    @Test
+    @Transactional
+    @Rollback
+    void removeUserWithActiveLinksTest() {
+        long chatId1 = 1111;
+        String admin = "admin";
+        OffsetDateTime time = OffsetDateTime.now().withNano(0);
+        ChatDto chatDto1 = new ChatDto(chatId1, time, admin);
+
+        chatRepository.add(chatDto1);
+
+        Optional<Chat> createdChat = chatRepository.find(chatId1);
+        assertTrue(createdChat.isPresent());
+
+        String url = "https://github.com/AnastasiaPleshkova/library";
+        LinkDto linkDto = new LinkDto(url, time, time, time, admin);
+
+        linkRepository.addLink(linkDto);
+        Link link = linkRepository.find(url).orElseThrow();
+
+        linkRepository.add(createdChat.get().getId(), link.getId());
+
+        assertAll(
+            () -> assertTrue(linkRepository.findByChatId(chatId1).stream()
+                .anyMatch(x -> x.getUrl().equals(link.getUrl()))),
+            () -> assertDoesNotThrow(() -> chatRepository.remove(chatId1)),
+            () -> assertTrue(chatRepository.find(chatId1).isEmpty())
+        );
+    }
+
+    @Test
+    @Transactional
+    @Rollback
+    void updateTest() {
+        String admin = "admin";
+        OffsetDateTime todayTime = OffsetDateTime.now().withNano(0);
+        OffsetDateTime oldTime = todayTime.minusDays(1000);
+        String url = "https://github.com/AnastasiaPleshkova/CheckFuel";
+        LinkDto linkDto = new LinkDto(url, oldTime, oldTime, oldTime, admin);
+
+        linkRepository.addLink(linkDto);
+
+        List<Link> byLastCheckLimit = linkRepository.findByLastCheckLimit(1);
+        Link linkToUpdate = byLastCheckLimit.get(0);
+
+        linkRepository.updateLinkCheckTime(linkToUpdate.getId(), todayTime);
+        linkRepository.updateUpdatedAtTime(linkToUpdate.getId(), todayTime);
+
+        Link resultLink = linkRepository.find(url).get();
+
+        assertAll(
+            () -> assertEquals(linkToUpdate.getUrl(), url),
+            () -> assertTrue(todayTime.isEqual(resultLink.getLastCheckTime())),
+            () -> assertTrue(todayTime.isEqual(resultLink.getUpdatedAt()))
+        );
+    }
+
 
 }

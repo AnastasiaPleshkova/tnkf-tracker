@@ -19,12 +19,12 @@ public class BotController {
 
     @PostMapping("/updates")
     public String sendUpdates(@Valid @RequestBody LinkUpdateRequest linkUpdate) {
-        String message = "Тут обновление по отслеживаемой ссылке " + linkUpdate.url();
+        String message = linkUpdate.description();
         log.info(message);
 
         Arrays.stream(linkUpdate.tgChatIds())
             .map(id -> new SendMessage(id, message))
-            .forEach(x -> myBot.getTelegramBot().execute(x));
+            .forEach(myBot::executeMessage);
 
         return linkUpdate.tgChatIds().length + " пользователям отправлено обновление от ссылки " + linkUpdate.url();
     }

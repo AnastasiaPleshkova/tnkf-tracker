@@ -17,6 +17,8 @@ public record ApplicationConfig(
     @NotEmpty
     String botUrl,
     @NotNull
+    Integer maxUpdatedRecordsValue,
+    @NotNull
     @Bean
     Scheduler scheduler
 ) {

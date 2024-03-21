@@ -7,11 +7,9 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SetMyCommands;
 import edu.java.bot.services.holder.Holder;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Getter
 public class MyBot {
     private final TelegramBot telegramBot;
     private final Holder holder;
@@ -27,6 +25,10 @@ public class MyBot {
             SendMessage sendMessage = holder.getHandler(command).process(update);
             telegramBot.execute(sendMessage);
         }, "Произошла ошибка во время исполнения команды");
+    }
+
+    public void executeMessage(SendMessage sendMessage) {
+        executeSafely(() -> telegramBot.execute(sendMessage), "Произошла ошибка во время отправки сообщения");
     }
 
     public void setUpdatesListener() {

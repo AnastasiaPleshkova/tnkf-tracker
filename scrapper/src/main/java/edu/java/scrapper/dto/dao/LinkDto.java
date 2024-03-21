@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 public class LinkDto {
     private String url;
     private OffsetDateTime lastCheckTime;
+    private OffsetDateTime updatedAt;
     private OffsetDateTime createdAt;
     private String createdBy;
 }

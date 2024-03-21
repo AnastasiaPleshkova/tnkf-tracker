@@ -10,7 +10,7 @@ public interface ChatRepository {
 
     List<Chat> findAll();
 
-    void add(ChatDto chatDto);
+    int add(ChatDto chatDto);
 
-    void remove(long tgChatId);
+    int remove(long tgChatId);
 }

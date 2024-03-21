@@ -9,10 +9,11 @@ import org.springframework.scheduling.annotation.Scheduled;
 @RequiredArgsConstructor
 public class LinkUpdaterScheduler {
     private final LinkUpdater linkUpdater;
+    private final Integer maxUpdatedRecordsValue;
 
     @Scheduled(fixedDelayString = "#{@scheduler.interval.toMillis()}")
     void update() {
-        log.info(linkUpdater.update() + " ссылок получили обновление");
+        log.info(linkUpdater.update(maxUpdatedRecordsValue) + " ссылок получили обновление");
     }
 
 }

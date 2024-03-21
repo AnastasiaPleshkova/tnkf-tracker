@@ -4,7 +4,6 @@ import edu.java.scrapper.dto.request.controller.LinkRequest;
 import edu.java.scrapper.dto.response.controller.LinkResponse;
 import edu.java.scrapper.dto.response.controller.ListLinksResponse;
 import edu.java.scrapper.models.Link;
-import edu.java.scrapper.services.ChatService;
 import edu.java.scrapper.services.LinkService;
 import edu.java.scrapper.util.LinkResponseMapper;
 import jakarta.validation.Valid;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -22,23 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class ScrapperController {
-    private final ChatService chatService;
+public class LinkController {
+
     private final LinkService linkService;
-
-    @PostMapping("/api/tg-chat/{id}")
-    public String registerChat(@PathVariable Long id) {
-        log.info("Зарегистрировать чат " + id);
-        chatService.register(id);
-        return "Чат зарегистрирован";
-    }
-
-    @DeleteMapping("/api/tg-chat/{id}")
-    public String deleteChat(@PathVariable Long id) {
-        log.info("Удалить чат " + id);
-        chatService.unregister(id);
-        return "Чат успешно удалён";
-    }
 
     @GetMapping("/api/links")
     public ListLinksResponse getAllLinks(

@@ -22,57 +22,73 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class JdbcLinkUpdater implements LinkUpdater {
+    private static final String GIT = "https://github.com";
+    private static final String SOF = "https://stackoverflow.com";
     private static final String ERROR_MSG = "Ссылка недоступна id: %d, url:%s";
+    private static final String SOME_CHANGES = "Что-то изменилось у ссылки ";
     private final LinkRepository linkRepository;
     private final GitClient gitClient;
     private final StackClient stackClient;
     private final BotClient botClient;
+    private int count;
 
     @Override
     @SneakyThrows
-    public int update() {
-        int count = 0;
-        OffsetDateTime time = OffsetDateTime.now().withMinute(0);
+    public int update(int maxUpdatedRecordsValue) {
+        count = 0;
+        OffsetDateTime currentTime = OffsetDateTime.now().withNano(0);
+        List<Link> linkToUpdate = linkRepository.findByLastCheckLimit(maxUpdatedRecordsValue);
 
-        List<Link> allLinks = linkRepository.findByLastCheck(time);
-
-        for (Link link : allLinks) {
-            OffsetDateTime lastModifTimeFromLink = null;
-            if (link.getUrl().startsWith("https://github.com")) {
-                Pattern pattern = Pattern.compile("https://github.com/([^/]+)/([^/]+)");
-                Matcher matcher = pattern.matcher(link.getUrl());
-                if (matcher.find()) {
-                    try {
-                        lastModifTimeFromLink = gitClient.fetchUserRepo(matcher.group(1), matcher.group(2)).updatedAt();
-                    } catch (Exception e) {
-                        log.info(String.format(ERROR_MSG, link.getId(), link.getUrl()));
-                    }
-
+        for (Link link : linkToUpdate) {
+            try {
+                if (link.getUrl().startsWith(SOF)) {
+                    updateStackLink(link);
+                } else if (link.getUrl().startsWith(GIT)) {
+                    updateGitLink(link);
                 }
-            } else if (link.getUrl().startsWith("https://stackoverflow.com")) {
-                Pattern pattern = Pattern.compile("https://stackoverflow.com/questions/(\\d+)/.*");
-                Matcher matcher = pattern.matcher(link.getUrl());
-                if (matcher.find()) {
-                    try {
-                        lastModifTimeFromLink =
-                            stackClient.fetchQuestion(matcher.group(1)).items().get(0).lastActivityDate();
-                    } catch (Exception e) {
-                        log.info(String.format(ERROR_MSG, link.getId(), link.getUrl()));
-                    }
-                }
+                linkRepository.updateLinkCheckTime(link.getId(), currentTime);
+            } catch (Exception e) {
+                log.info(ERROR_MSG + e.getMessage());
             }
-
-            if (lastModifTimeFromLink != null && lastModifTimeFromLink.isAfter(link.getLastCheckTime())) {
-
-                botClient.sendUpdate(
-                    new LinkUpdateRequest(link.getId(), new URI(link.getUrl()), "Тут обновление" + link.getUrl(),
-                        linkRepository.findByUrl(link.getUrl()).stream().map(Chat::getTgChatId).toArray(Long[]::new)
-                    ));
-                linkRepository.updateLinkCheckTime(link.getId(), lastModifTimeFromLink);
-                count++;
-            }
-
         }
         return count;
     }
+
+    private void updateStackLink(Link link) {
+        Pattern pattern = Pattern.compile("https://stackoverflow.com/questions/(\\d+)/.*");
+        Matcher matcher = pattern.matcher(link.getUrl());
+        if (matcher.find()) {
+            OffsetDateTime lastModifTimeFromLink =
+                stackClient.fetchQuestion(matcher.group(1)).items().get(0).lastActivityDate();
+            if (lastModifTimeFromLink.isAfter(link.getUpdatedAt())) {
+                linkRepository.updateUpdatedAtTime(link.getId(), lastModifTimeFromLink);
+                sendUpdate(link, SOME_CHANGES);
+                count++;
+            }
+        }
+    }
+
+    private void updateGitLink(Link link) {
+        Pattern pattern = Pattern.compile("https://github.com/([^/]+)/([^/]+)");
+        Matcher matcher = pattern.matcher(link.getUrl());
+        if (matcher.find()) {
+            OffsetDateTime lastModifTimeFromLink =
+                gitClient.fetchUserRepo(matcher.group(1), matcher.group(2)).updatedAt();
+            if (lastModifTimeFromLink.isAfter(link.getUpdatedAt())) {
+                linkRepository.updateUpdatedAtTime(link.getId(), lastModifTimeFromLink);
+                sendUpdate(link, SOME_CHANGES);
+                count++;
+            }
+        }
+    }
+
+    @SneakyThrows
+    private void sendUpdate(Link link, String message) {
+        LinkUpdateRequest linkUpdate =
+            new LinkUpdateRequest(link.getId(), new URI(link.getUrl()), message + link.getUrl(),
+                linkRepository.findChatsByUrl(link.getUrl()).stream().map(Chat::getTgChatId).toArray(Long[]::new)
+            );
+        botClient.sendUpdate(linkUpdate);
+    }
 }
+
