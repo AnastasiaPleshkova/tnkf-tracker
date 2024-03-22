@@ -97,9 +97,9 @@ public class JdbcLinkRepository implements LinkRepository {
 
     @Transactional(readOnly = true)
     public boolean checkTracking(long chatId, long linkId) {
-        return jdbcTemplate.queryForObject("SELECT count(*) FROM chat_link_mapping WHERE chat_id=? AND link_id=?",
-            Integer.class, chatId, linkId) == 1;
+        return jdbcTemplate.queryForObject("""
+            SELECT EXISTS (SELECT 1 FROM chat_link_mapping WHERE chat_id = ? AND link_id = ?)""",
+            Boolean.class, chatId, linkId);
     }
-
 
 }
