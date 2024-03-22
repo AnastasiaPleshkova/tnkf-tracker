@@ -1,4 +1,4 @@
-package edu.java.scrapper.services.jdbc;
+package edu.java.scrapper.services.jooq;
 
 import edu.java.scrapper.dto.request.client.LinkUpdateRequest;
 import edu.java.scrapper.dto.response.client.StackUserResponse;
@@ -17,12 +17,14 @@ import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+@Primary
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class JdbcLinkUpdater implements LinkUpdater {
+public class JooqLinkUpdater implements LinkUpdater {
     private static final String GIT = "https://github.com";
     private static final String SOF = "https://stackoverflow.com";
     private static final String ERROR_MSG = "Ссылка недоступна id: %d, url:%s";

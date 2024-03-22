@@ -30,4 +30,9 @@ public interface LinkRepository {
     void updateUpdatedAtTime(long id, OffsetDateTime time);
 
     boolean checkTracking(long chatId, long linkId);
+
+    void updateLinkCommitsCount(long id, long commits);
+
+    void updateLinkAnswersCount(long id, long answers);
+
 }

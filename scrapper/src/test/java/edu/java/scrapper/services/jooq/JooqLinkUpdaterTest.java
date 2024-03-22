@@ -1,4 +1,4 @@
-package edu.java.scrapper.services.jdbc;
+package edu.java.scrapper.services.jooq;
 
 import edu.java.scrapper.dto.request.client.LinkUpdateRequest;
 import edu.java.scrapper.dto.response.client.GitCommitsResponse;
@@ -28,9 +28,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class JdbcLinkUpdaterTest {
+class JooqLinkUpdaterTest {
     @Mock
-    @Qualifier(value = "jdbcLinkRepository")
+    @Qualifier(value = "jooqLinkRepository")
     private LinkRepository linkRepository;
 
     @Mock
@@ -43,13 +43,14 @@ class JdbcLinkUpdaterTest {
     private BotClient botClient;
 
     @InjectMocks
-    private JdbcLinkUpdater jdbcLinkUpdater;
+    private JooqLinkUpdater jooqLinkUpdater;
 
     @Test
     void testUpdateStackLink() {
         OffsetDateTime time = OffsetDateTime.now().minusDays(1);
         long id = 1;
-        Link link = new Link(id,
+        Link link = new Link(
+            id,
             "https://stackoverflow.com/questions/123/test-url",
             time,
             (long) 0,
@@ -64,7 +65,7 @@ class JdbcLinkUpdaterTest {
         when(stackClient.fetchQuestion("123"))
             .thenReturn(new StackUserResponse(Collections.singletonList(questionItem)));
 
-        jdbcLinkUpdater.updateStackLink(link);
+        jooqLinkUpdater.updateStackLink(link);
 
         verify(linkRepository, times(1)).updateUpdatedAtTime(eq(1L), any(OffsetDateTime.class));
         verify(botClient, times(1)).sendUpdate(any(LinkUpdateRequest.class));
@@ -74,14 +75,15 @@ class JdbcLinkUpdaterTest {
     void testUpdateGitLink() {
         OffsetDateTime time = OffsetDateTime.now().minusDays(1);
         long id = 1;
-        Link link = new Link(id, "https://github.com/AnastasiaPleshkova/tnkf-tracker", time,(long) 0,
-            (long) 0, time, time, "test");
+        Link link = new Link(id, "https://github.com/AnastasiaPleshkova/tnkf-tracker", time, (long) 0,
+            (long) 0, time, time, "test"
+        );
 
         when(gitClient.fetchUserRepo("AnastasiaPleshkova", "tnkf-tracker"))
             .thenReturn(new GitUserResponse("name", OffsetDateTime.now()));
         when(gitClient.fetchUserRepoCommits("AnastasiaPleshkova", "tnkf-tracker"))
             .thenReturn(new GitCommitsResponse[0]);
-        jdbcLinkUpdater.updateGitLink(link);
+        jooqLinkUpdater.updateGitLink(link);
 
         verify(linkRepository, times(1)).updateUpdatedAtTime(eq(1L), any(OffsetDateTime.class));
         verify(botClient, times(1)).sendUpdate(any(LinkUpdateRequest.class));
@@ -95,13 +97,17 @@ class JdbcLinkUpdaterTest {
         long id = 1;
         List<Link> linksToUpdate = List.of(
             new Link(id, "https://github.com/AnastasiaPleshkova/tnkf-tracker", yesterday, (long) 0,
-                (long) 0,yesterday, yesterday, "test"),
+                (long) 0, yesterday, yesterday, "test"
+            ),
             new Link(id, "https://github.com/AnotherRepoName/test", yesterday, (long) 0,
-                (long) 0,yesterday, yesterday, "test"),
-            new Link(id, "https://stackoverflow.com/questions/123/test-url", yesterday,(long) 0,
-                (long) 0, yesterday, yesterday, "test"),
+                (long) 0, yesterday, yesterday, "test"
+            ),
+            new Link(id, "https://stackoverflow.com/questions/123/test-url", yesterday, (long) 0,
+                (long) 0, yesterday, yesterday, "test"
+            ),
             new Link(id, "https://stackoverflow.com/questions/123456/test-url", yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test")
+                (long) 0, yesterday, yesterday, "test"
+            )
         );
 
         when(gitClient.fetchUserRepo("AnastasiaPleshkova", "tnkf-tracker"))
@@ -113,7 +119,11 @@ class JdbcLinkUpdaterTest {
         when(gitClient.fetchUserRepoCommits("AnotherRepoName", "test"))
             .thenReturn(new GitCommitsResponse[0]);
         when(stackClient.fetchQuestion("123"))
-            .thenReturn(new StackUserResponse(Collections.singletonList(new StackUserResponse.Question("123", today, 0))));
+            .thenReturn(new StackUserResponse(Collections.singletonList(new StackUserResponse.Question(
+                "123",
+                today,
+                0
+            ))));
         when(stackClient.fetchQuestion("123456"))
             .thenReturn(new StackUserResponse(Collections.singletonList(new StackUserResponse.Question(
                 "123456",
@@ -122,7 +132,7 @@ class JdbcLinkUpdaterTest {
 
         when(linkRepository.findByLastCheckLimit(maxUpdatedRecordsValue)).thenReturn(linksToUpdate);
 
-        int updatedCount = jdbcLinkUpdater.update(maxUpdatedRecordsValue);
+        int updatedCount = jooqLinkUpdater.update(maxUpdatedRecordsValue);
 
         assertAll(
             () -> assertEquals(2, updatedCount),
@@ -143,9 +153,11 @@ class JdbcLinkUpdaterTest {
         String url2 = "https://github.com/AnotherRepoName/test";
         List<Link> linksToUpdate = List.of(
             new Link(id, url1, yesterday, (long) 0,
-                (long) 0,yesterday, yesterday, "test"),
+                (long) 0, yesterday, yesterday, "test"
+            ),
             new Link(id, url2, yesterday, (long) 0,
-                (long) 0,yesterday, yesterday, "test")
+                (long) 0, yesterday, yesterday, "test"
+            )
         );
 
         when(gitClient.fetchUserRepo("AnastasiaPleshkova", "tnkf-tracker"))
@@ -156,14 +168,14 @@ class JdbcLinkUpdaterTest {
         when(gitClient.fetchUserRepo("AnotherRepoName", "test"))
             .thenReturn(new GitUserResponse("test", yesterday));
         GitCommitsResponse[] gitCommitsResponse =
-            new GitCommitsResponse[] {new GitCommitsResponse(new GitCommitsResponse.Commit("first commit"), "some url")};
+            new GitCommitsResponse[] {
+                new GitCommitsResponse(new GitCommitsResponse.Commit("first commit"), "some url")};
         when(gitClient.fetchUserRepoCommits("AnotherRepoName", "test"))
             .thenReturn(gitCommitsResponse);
 
-
         when(linkRepository.findByLastCheckLimit(maxUpdatedRecordsValue)).thenReturn(linksToUpdate);
 
-        int updatedCount = jdbcLinkUpdater.update(maxUpdatedRecordsValue);
+        int updatedCount = jooqLinkUpdater.update(maxUpdatedRecordsValue);
 
         String someChanges = "Что-то изменилось у ссылки ";
         String commits = "Изменилось количество коммитов у ссылки ";
@@ -171,7 +183,7 @@ class JdbcLinkUpdaterTest {
         assertAll(
             () -> assertEquals(2, updatedCount),
             () -> verify(linkRepository, times(1)).updateUpdatedAtTime(eq(id), any(OffsetDateTime.class)),
-            () -> verify(linkRepository, times(1)).updateLinkCommitsCount(eq(id), eq((long) 1) ),
+            () -> verify(linkRepository, times(1)).updateLinkCommitsCount(eq(id), eq((long) 1)),
             () -> verify(linkRepository, times(2)).updateLinkCheckTime(eq(id), any(OffsetDateTime.class)),
             () -> verify(botClient, times(1)).sendUpdate(argThat(arg ->
                 arg.description().contains(commits) && arg.url().toString().equals(url2))),
@@ -192,25 +204,35 @@ class JdbcLinkUpdaterTest {
         String url3 = "https://stackoverflow.com/questions/9999/no-change-test-url";
         List<Link> linksToUpdate = List.of(
             new Link(id, url1, yesterday, (long) 0,
-                (long) 0,yesterday, yesterday, "test"),
+                (long) 0, yesterday, yesterday, "test"
+            ),
             new Link(id, url2, yesterday, (long) 0,
-                (long) 0,yesterday, yesterday, "test"),
+                (long) 0, yesterday, yesterday, "test"
+            ),
             new Link(id, url3, yesterday, (long) 0,
-                (long) 0,yesterday, yesterday, "test")
+                (long) 0, yesterday, yesterday, "test"
+            )
         );
 
         when(stackClient.fetchQuestion("123"))
-            .thenReturn(new StackUserResponse(Collections.singletonList(new StackUserResponse.Question("123", today, 0))));
+            .thenReturn(new StackUserResponse(Collections.singletonList(new StackUserResponse.Question(
+                "123",
+                today,
+                0
+            ))));
         when(stackClient.fetchQuestion("123456"))
             .thenReturn(new StackUserResponse(Collections.singletonList(new StackUserResponse.Question(
                 "123456", today, 5))));
         when(stackClient.fetchQuestion("9999"))
-            .thenReturn(new StackUserResponse(Collections.singletonList(new StackUserResponse.Question("123", yesterday, 0))));
-
+            .thenReturn(new StackUserResponse(Collections.singletonList(new StackUserResponse.Question(
+                "123",
+                yesterday,
+                0
+            ))));
 
         when(linkRepository.findByLastCheckLimit(maxUpdatedRecordsValue)).thenReturn(linksToUpdate);
 
-        int updatedCount = jdbcLinkUpdater.update(maxUpdatedRecordsValue);
+        int updatedCount = jooqLinkUpdater.update(maxUpdatedRecordsValue);
 
         String someChanges = "Что-то изменилось у ссылки ";
         String answers = "Изменилось количество ответов у ссылки ";

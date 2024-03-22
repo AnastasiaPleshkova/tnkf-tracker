@@ -102,4 +102,14 @@ public class JdbcLinkRepository implements LinkRepository {
             Boolean.class, chatId, linkId);
     }
 
+    @Transactional
+    public void updateLinkCommitsCount(long id, long commits) {
+        jdbcTemplate.update("UPDATE link SET commits_count = ? WHERE id = ?", commits, id);
+    }
+
+    @Transactional
+    public void updateLinkAnswersCount(long id, long answers) {
+        jdbcTemplate.update("UPDATE link SET answers_count = ? WHERE id = ?", answers, id);
+    }
+
 }

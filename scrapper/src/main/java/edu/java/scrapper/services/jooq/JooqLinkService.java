@@ -1,4 +1,4 @@
-package edu.java.scrapper.services.jdbc;
+package edu.java.scrapper.services.jooq;
 
 import edu.java.scrapper.dto.dao.LinkDto;
 import edu.java.scrapper.exceptions.LinkAlreadyTracked;
@@ -13,11 +13,14 @@ import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+@Primary
 @Service
 @RequiredArgsConstructor
-public class JdbcLinkService implements LinkService {
+public class JooqLinkService implements LinkService {
+
     private final LinkRepository linkRepository;
     private final ChatRepository chatRepository;
 
