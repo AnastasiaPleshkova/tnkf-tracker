@@ -12,8 +12,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 public class ScrapperWebClient implements ScrapperClient {
-    public static final String LINKS = "/links";
-    public static final String CHAT_ID = "/tg-chat/{id}";
+    public static final String LINKS = "api/links";
+    public static final String CHAT_ID = "api/tg-chat/{id}";
     public static final String TG_CHAT_ID_HEADER = "Tg-Chat-Id";
     private final WebClient webClient;
 
@@ -28,7 +28,7 @@ public class ScrapperWebClient implements ScrapperClient {
             .header(TG_CHAT_ID_HEADER, chatId)
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(ApiErrorResponse.class)
-                .flatMap(errorResponse -> Mono.error(new RuntimeException(String.valueOf(errorResponse)))))
+                .flatMap(errorResponse -> Mono.error(new RuntimeException(errorResponse.description()))))
             .bodyToMono(ListLinksResponse.class)
             .block();
     }
@@ -42,7 +42,7 @@ public class ScrapperWebClient implements ScrapperClient {
             .bodyValue(linkRequest)
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(ApiErrorResponse.class)
-                .flatMap(errorResponse -> Mono.error(new RuntimeException(String.valueOf(errorResponse)))))
+                .flatMap(errorResponse -> Mono.error(new RuntimeException(errorResponse.description()))))
             .bodyToMono(LinkResponse.class)
             .block();
     }
@@ -57,7 +57,7 @@ public class ScrapperWebClient implements ScrapperClient {
             .bodyValue(linkRequest)
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(ApiErrorResponse.class)
-                .flatMap(errorResponse -> Mono.error(new RuntimeException(String.valueOf(errorResponse)))))
+                .flatMap(errorResponse -> Mono.error(new RuntimeException(errorResponse.description()))))
             .bodyToMono(LinkResponse.class)
             .block();
     }

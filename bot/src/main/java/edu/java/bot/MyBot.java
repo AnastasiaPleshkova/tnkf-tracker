@@ -27,6 +27,10 @@ public class MyBot {
         }, "Произошла ошибка во время исполнения команды");
     }
 
+    public void executeMessage(SendMessage sendMessage) {
+        executeSafely(() -> telegramBot.execute(sendMessage), "Произошла ошибка во время отправки сообщения");
+    }
+
     public void setUpdatesListener() {
         telegramBot.setUpdatesListener(updates -> {
             updates.forEach(this::execute);

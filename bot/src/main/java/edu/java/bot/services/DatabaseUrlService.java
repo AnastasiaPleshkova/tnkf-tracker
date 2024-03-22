@@ -1,64 +1,66 @@
 package edu.java.bot.services;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import edu.java.bot.dto.request.client.LinkRequest;
+import edu.java.bot.dto.response.client.ListLinksResponse;
+import edu.java.bot.webClients.ScrapperClient;
+import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class DatabaseUrlService implements UrlService {
 
     public static final String FIRST_SIGH_IN_MSG = "Для начала работы с ботом необходимо зарегистрироваться /start";
     public static final String NOT_FOUND_URL_MSG = "Не найдена ссылка для удаления среди отслеживаемых вами";
     public static final String ALREADY_TRACKED_URL_MSG = "Ссылка уже среди отслеживаемых вами";
-    private Map<Long, List<String>> tempMap = new HashMap<>(); //TODO remove after config connection to db
+    private final ScrapperClient scrapperClient;
 
     @Override
     public void add(long chatId, String url) {
-        if (tempMap.containsKey(chatId)) {
-            List<String> list = new ArrayList<>(tempMap.get(chatId));
-            if (!list.contains(url)) {
-                list.add(url);
-            } else {
-                throw new IllegalArgumentException(ALREADY_TRACKED_URL_MSG);
-            }
-            tempMap.put(chatId, list);
-        } else {
-            throw new IllegalArgumentException(FIRST_SIGH_IN_MSG);
+        try {
+            scrapperClient.addLinks(String.valueOf(chatId), new LinkRequest(new URI(url)));
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
         }
+
         log.info(String.format("Пользователь %d добавил ссылку: %s", chatId, url));
     }
 
     @Override
     public void remove(long chatId, String url) {
-        List<String> list = new ArrayList<>(getLinksByUser(chatId));
-        if (list.contains(url)) {
-            list.remove(url);
-            tempMap.put(chatId, list);
-        } else {
-            throw new IllegalArgumentException(NOT_FOUND_URL_MSG);
+
+        try {
+            scrapperClient.deleteLinks(String.valueOf(chatId), new LinkRequest(new URI(url)));
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
         }
+
         log.info(String.format("Пользователь %d удалил ссылку : %s", chatId, url));
     }
 
     @Override
     public List<String> getLinksByUser(long chatId) {
-        if (tempMap.containsKey(chatId)) {
+        try {
+            ListLinksResponse links = scrapperClient.getLinks(String.valueOf(chatId));
             log.info("Пользователь" + chatId + " запросил список своих ссылок");
-            return List.copyOf(tempMap.get(chatId));
-        } else {
-            throw new IllegalArgumentException(FIRST_SIGH_IN_MSG);
+            return Arrays.stream(links.links()).map(x -> x.url().toString()).toList();
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
         }
+
     }
 
     @Override
     public void addUser(long chatId) {
-        if (!tempMap.containsKey(chatId)) {
-            tempMap.put(chatId, Collections.emptyList());
+        try {
+            scrapperClient.registerChat(String.valueOf(chatId));
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e.getMessage());
         }
     }
 

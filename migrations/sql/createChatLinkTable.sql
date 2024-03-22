@@ -1,7 +1,7 @@
 create table chat
 (
     id              bigint generated always as identity,
-    name            text                     not null,
+    tg_chat_id      bigint                   not null,
 
     created_at      timestamp with time zone not null,
     created_by      text                     not null,
@@ -15,6 +15,7 @@ create table link
     url             text                     not null,
 
     last_check_time timestamp with time zone not null,
+    updated_at      timestamp with time zone not null,
 
     created_at      timestamp with time zone not null,
     created_by      text                     not null,
