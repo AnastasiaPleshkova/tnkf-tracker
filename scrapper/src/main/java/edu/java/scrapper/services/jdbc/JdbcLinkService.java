@@ -26,8 +26,7 @@ public class JdbcLinkService implements LinkService {
         Chat chat = chatRepository.find(chatId).orElseThrow(ResourceNotFound::new);
         Link link = findOrCreate(url.toString());
 
-        if (linkRepository.findByChatId(chatId).stream()
-            .anyMatch(linkAlreadyTracked -> linkAlreadyTracked.getUrl().equals(url.toString()))) {
+        if (linkRepository.checkTracking(chat.getId(), link.getId())) {
             throw new LinkAlreadyTracked();
         }
 

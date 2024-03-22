@@ -37,7 +37,7 @@ public class ListCommand implements Command {
 
         try {
             List<String> linksByUser = urlService.getLinksByUser(chatId);
-            if (linksByUser.size() == 0) {
+            if (linksByUser.isEmpty()) {
                 return new SendMessage(chatId, MESSAGE_FOR_EMPTY_LIST).parseMode(ParseMode.Markdown);
             }
             answer.append(MESSAGE);

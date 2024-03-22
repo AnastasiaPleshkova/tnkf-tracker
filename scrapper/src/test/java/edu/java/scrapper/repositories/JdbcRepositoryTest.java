@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
@@ -60,7 +61,8 @@ class JdbcRepositoryTest extends IntegrationTest {
         assertAll(
             () -> assertTrue(linkRepository.findAll().stream().anyMatch(x->x.getUrl().equals(url))),
             () -> assertTrue(linkRepository.findChatsByUrl(url).stream().anyMatch(x->x.getTgChatId().equals(chatId1))),
-            () -> assertTrue(linkRepository.findChatsByUrl(url).stream().anyMatch(x->x.getTgChatId().equals(chatId2)))
+            () -> assertTrue(linkRepository.findChatsByUrl(url).stream().anyMatch(x->x.getTgChatId().equals(chatId2))),
+            () -> assertTrue(linkRepository.checkTracking(result.get(0).getId(), link.getId()))
         );
     }
 
@@ -79,6 +81,8 @@ class JdbcRepositoryTest extends IntegrationTest {
 
         list1.forEach(x -> linkRepository.remove(chat1.getId(), x.getId()));
         list2.forEach(x -> linkRepository.remove(chat2.getId(), x.getId()));
+
+        assertFalse(linkRepository.checkTracking(chat1.getId(), list1.get(0).getId()));
 
         chatRepository.remove(tgChatId1);
         chatRepository.remove(tgChatId2);

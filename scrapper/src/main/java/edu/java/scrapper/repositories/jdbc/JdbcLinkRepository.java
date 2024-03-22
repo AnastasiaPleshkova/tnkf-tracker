@@ -54,10 +54,10 @@ public class JdbcLinkRepository implements LinkRepository {
     }
 
     @Transactional(readOnly = true)
-    public List<Link> findByLastCheckLimit(int value) {
+    public List<Link> findByLastCheckLimit(int maxUpdatedRecordsValue) {
         return jdbcTemplate.query(GET_ALL_LINK
                 + " ORDER BY last_check_time LIMIT ?",
-            new Object[] {value}, new BeanPropertyRowMapper<>(Link.class)
+            new Object[] {maxUpdatedRecordsValue}, new BeanPropertyRowMapper<>(Link.class)
         );
     }
 
@@ -94,5 +94,12 @@ public class JdbcLinkRepository implements LinkRepository {
     public int remove(long chatId, long linkId) {
         return jdbcTemplate.update("DELETE FROM chat_link_mapping WHERE chat_id=? AND link_id=?", chatId, linkId);
     }
+
+    @Transactional(readOnly = true)
+    public boolean checkTracking(long chatId, long linkId) {
+        return jdbcTemplate.queryForObject("SELECT count(*) FROM chat_link_mapping WHERE chat_id=? AND link_id=?",
+            Integer.class, chatId, linkId) == 1;
+    }
+
 
 }

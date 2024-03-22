@@ -54,7 +54,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
         return count;
     }
 
-    private void updateStackLink(Link link) {
+    void updateStackLink(Link link) {
         Pattern pattern = Pattern.compile("https://stackoverflow.com/questions/(\\d+)/.*");
         Matcher matcher = pattern.matcher(link.getUrl());
         if (matcher.find()) {
@@ -68,7 +68,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
         }
     }
 
-    private void updateGitLink(Link link) {
+    void updateGitLink(Link link) {
         Pattern pattern = Pattern.compile("https://github.com/([^/]+)/([^/]+)");
         Matcher matcher = pattern.matcher(link.getUrl());
         if (matcher.find()) {
