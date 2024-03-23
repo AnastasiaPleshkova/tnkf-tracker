@@ -1,5 +1,6 @@
 package edu.java.scrapper.configuration;
 
+import edu.java.scrapper.configuration.accessTypes.AccessType;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.Duration;
@@ -18,6 +19,8 @@ public record ApplicationConfig(
     String botUrl,
     @NotNull
     Integer maxUpdatedRecordsValue,
+    @NotNull
+    AccessType databaseAccessType,
     @NotNull
     @Bean
     Scheduler scheduler

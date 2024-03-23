@@ -6,9 +6,7 @@ import edu.java.scrapper.repositories.ChatRepository;
 import edu.java.scrapper.services.ChatService;
 import java.time.OffsetDateTime;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-@Service
 @RequiredArgsConstructor
 public class JdbcChatService implements ChatService {
     private final ChatRepository chatRepository;

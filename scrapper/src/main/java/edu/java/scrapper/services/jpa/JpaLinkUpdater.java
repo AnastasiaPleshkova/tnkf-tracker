@@ -1,9 +1,10 @@
-package edu.java.scrapper.services.jdbc;
+package edu.java.scrapper.services.jpa;
 
 import edu.java.scrapper.dto.request.client.LinkUpdateRequest;
 import edu.java.scrapper.models.Chat;
 import edu.java.scrapper.models.Link;
-import edu.java.scrapper.repositories.LinkRepository;
+import edu.java.scrapper.repositories.jpa.JpaChatRepository;
+import edu.java.scrapper.repositories.jpa.JpaLinkRepository;
 import edu.java.scrapper.services.LinkUpdater;
 import edu.java.scrapper.webClients.BotClient;
 import edu.java.scrapper.webClients.GitClient;
@@ -16,15 +17,19 @@ import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @RequiredArgsConstructor
-public class JdbcLinkUpdater implements LinkUpdater {
+public class JpaLinkUpdater implements LinkUpdater {
+
     private static final String GIT = "https://github.com";
     private static final String SOF = "https://stackoverflow.com";
     private static final String ERROR_MSG = "Ссылка недоступна id: %d, url:%s";
     private static final String SOME_CHANGES = "Что-то изменилось у ссылки ";
-    private final LinkRepository linkRepository;
+    private final JpaLinkRepository linkRepository;
+    private final JpaChatRepository chatRepository;
     private final GitClient gitClient;
     private final StackClient stackClient;
     private final BotClient botClient;
@@ -32,10 +37,12 @@ public class JdbcLinkUpdater implements LinkUpdater {
 
     @Override
     @SneakyThrows
+    @Transactional
     public int update(int maxUpdatedRecordsValue) {
         count = 0;
-        OffsetDateTime currentTime = OffsetDateTime.now().withNano(0);
-        List<Link> linkToUpdate = linkRepository.findByLastCheckLimit(maxUpdatedRecordsValue);
+        OffsetDateTime currentTime = OffsetDateTime.now();
+        List<Link> linkToUpdate =
+            linkRepository.findAllByOrderByLastCheckTimeAsc(Pageable.ofSize(maxUpdatedRecordsValue));
 
         for (Link link : linkToUpdate) {
             try {
@@ -44,7 +51,8 @@ public class JdbcLinkUpdater implements LinkUpdater {
                 } else if (link.getUrl().startsWith(GIT)) {
                     updateGitLink(link);
                 }
-                linkRepository.updateLinkCheckTime(link.getId(), currentTime);
+                link.setLastCheckTime(currentTime);
+                linkRepository.save(link);
             } catch (Exception e) {
                 log.info(ERROR_MSG + e.getMessage());
             }
@@ -59,7 +67,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
             OffsetDateTime lastModifTimeFromLink =
                 stackClient.fetchQuestion(matcher.group(1)).items().get(0).lastActivityDate();
             if (lastModifTimeFromLink.isAfter(link.getUpdatedAt())) {
-                linkRepository.updateUpdatedAtTime(link.getId(), lastModifTimeFromLink);
+                link.setUpdatedAt(lastModifTimeFromLink);
                 sendUpdate(link, SOME_CHANGES);
                 count++;
             }
@@ -73,7 +81,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
             OffsetDateTime lastModifTimeFromLink =
                 gitClient.fetchUserRepo(matcher.group(1), matcher.group(2)).updatedAt();
             if (lastModifTimeFromLink.isAfter(link.getUpdatedAt())) {
-                linkRepository.updateUpdatedAtTime(link.getId(), lastModifTimeFromLink);
+                link.setUpdatedAt(lastModifTimeFromLink);
                 sendUpdate(link, SOME_CHANGES);
                 count++;
             }
@@ -84,9 +92,8 @@ public class JdbcLinkUpdater implements LinkUpdater {
     private void sendUpdate(Link link, String message) {
         LinkUpdateRequest linkUpdate =
             new LinkUpdateRequest(link.getId(), new URI(link.getUrl()), message + link.getUrl(),
-                linkRepository.findChatsByUrl(link.getUrl()).stream().map(Chat::getTgChatId).toArray(Long[]::new)
+                chatRepository.findByLinksUrl(link.getUrl()).stream().map(Chat::getTgChatId).toArray(Long[]::new)
             );
         botClient.sendUpdate(linkUpdate);
     }
 }
-

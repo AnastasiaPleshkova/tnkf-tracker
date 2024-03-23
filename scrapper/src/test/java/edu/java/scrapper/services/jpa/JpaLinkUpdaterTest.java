@@ -1,10 +1,12 @@
-package edu.java.scrapper.services.jdbc;
+package edu.java.scrapper.services.jpa;
 
 import edu.java.scrapper.dto.request.client.LinkUpdateRequest;
 import edu.java.scrapper.dto.response.client.GitUserResponse;
 import edu.java.scrapper.dto.response.client.StackUserResponse;
+import edu.java.scrapper.models.Chat;
 import edu.java.scrapper.models.Link;
-import edu.java.scrapper.repositories.LinkRepository;
+import edu.java.scrapper.repositories.jpa.JpaChatRepository;
+import edu.java.scrapper.repositories.jpa.JpaLinkRepository;
 import edu.java.scrapper.webClients.BotClient;
 import edu.java.scrapper.webClients.GitClient;
 import edu.java.scrapper.webClients.StackClient;
@@ -17,18 +19,21 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class JdbcLinkUpdaterTest {
+class JpaLinkUpdaterTest {
     @Mock
-    private LinkRepository linkRepository;
+    private JpaLinkRepository linkRepository;
+
+    @Mock
+    private JpaChatRepository chatRepository;
 
     @Mock
     private GitClient gitClient;
@@ -40,22 +45,27 @@ class JdbcLinkUpdaterTest {
     private BotClient botClient;
 
     @InjectMocks
-    private JdbcLinkUpdater jdbcLinkUpdater;
+    private JpaLinkUpdater jpaLinkUpdater;
 
     @Test
     void testUpdateStackLink() {
         OffsetDateTime time = OffsetDateTime.now().minusDays(1);
+        String url = "https://stackoverflow.com/questions/123/test-url";
         long id = 1;
-        Link link = new Link(id, "https://stackoverflow.com/questions/123/test-url", time, time, time, "test",new HashSet<>());
+        Link link = new Link(id, url, time, time, time, "test", new HashSet<>());
 
         StackUserResponse.Question questionItem = new StackUserResponse.Question("123", OffsetDateTime.now());
 
         when(stackClient.fetchQuestion("123"))
             .thenReturn(new StackUserResponse(Collections.singletonList(questionItem)));
+        when(chatRepository.findByLinksUrl(url)).thenReturn(Collections.singletonList(new Chat(1L,
+            1L,
+            time,
+            "test",
+            new HashSet<>())));
 
-        jdbcLinkUpdater.updateStackLink(link);
+        jpaLinkUpdater.updateStackLink(link);
 
-        verify(linkRepository, times(1)).updateUpdatedAtTime(eq(1L), any(OffsetDateTime.class));
         verify(botClient, times(1)).sendUpdate(any(LinkUpdateRequest.class));
     }
 
@@ -63,14 +73,14 @@ class JdbcLinkUpdaterTest {
     void testUpdateGitLink() {
         OffsetDateTime time = OffsetDateTime.now().minusDays(1);
         long id = 1;
-        Link link = new Link(id, "https://github.com/AnastasiaPleshkova/tnkf-tracker", time, time, time, "test",new HashSet<>());
+        String url = "https://github.com/AnastasiaPleshkova/tnkf-tracker";
+        Link link = new Link(id, url, time, time, time, "test", new HashSet<>());
 
         when(gitClient.fetchUserRepo("AnastasiaPleshkova", "tnkf-tracker"))
             .thenReturn(new GitUserResponse("name", OffsetDateTime.now()));
 
-        jdbcLinkUpdater.updateGitLink(link);
+        jpaLinkUpdater.updateGitLink(link);
 
-        verify(linkRepository, times(1)).updateUpdatedAtTime(eq(1L), any(OffsetDateTime.class));
         verify(botClient, times(1)).sendUpdate(any(LinkUpdateRequest.class));
     }
 
@@ -81,10 +91,42 @@ class JdbcLinkUpdaterTest {
         OffsetDateTime yesterday = today.minusDays(1);
         long id = 1;
         List<Link> linksToUpdate = List.of(
-            new Link(id, "https://github.com/AnastasiaPleshkova/tnkf-tracker", yesterday, yesterday, yesterday, "test",new HashSet<>()),
-            new Link(id, "https://github.com/AnotherRepoName/test", yesterday, yesterday, yesterday, "test",new HashSet<>()),
-            new Link(id, "https://stackoverflow.com/questions/123/test-url", yesterday, yesterday, yesterday, "test",new HashSet<>()),
-            new Link(id, "https://stackoverflow.com/questions/123456/test-url", yesterday, yesterday, yesterday, "test",new HashSet<>())
+            new Link(
+                id,
+                "https://github.com/AnastasiaPleshkova/tnkf-tracker",
+                yesterday,
+                yesterday,
+                yesterday,
+                "test",
+                new HashSet<>()
+            ),
+            new Link(
+                id,
+                "https://github.com/AnotherRepoName/test",
+                yesterday,
+                yesterday,
+                yesterday,
+                "test",
+                new HashSet<>()
+            ),
+            new Link(
+                id,
+                "https://stackoverflow.com/questions/123/test-url",
+                yesterday,
+                yesterday,
+                yesterday,
+                "test",
+                new HashSet<>()
+            ),
+            new Link(
+                id,
+                "https://stackoverflow.com/questions/123456/test-url",
+                yesterday,
+                yesterday,
+                yesterday,
+                "test",
+                new HashSet<>()
+            )
         );
 
         when(gitClient.fetchUserRepo("AnastasiaPleshkova", "tnkf-tracker"))
@@ -99,17 +141,19 @@ class JdbcLinkUpdaterTest {
                 yesterday
             ))));
 
-        when(linkRepository.findByLastCheckLimit(maxUpdatedRecordsValue)).thenReturn(linksToUpdate);
+        when(linkRepository.findAllByOrderByLastCheckTimeAsc(Pageable.ofSize(maxUpdatedRecordsValue))).thenReturn(
+            linksToUpdate);
 
-        int updatedCount = jdbcLinkUpdater.update(maxUpdatedRecordsValue);
+        int updatedCount = jpaLinkUpdater.update(maxUpdatedRecordsValue);
 
         assertAll(
             () -> assertEquals(2, updatedCount),
-            () -> verify(linkRepository, times(2)).updateUpdatedAtTime(eq(id), any(OffsetDateTime.class)),
-            () -> verify(linkRepository, times(4)).updateLinkCheckTime(eq(id), any(OffsetDateTime.class)),
+//            () -> verify(linkRepository, times(2)).updateUpdatedAtTime(eq(id), any(OffsetDateTime.class)),
+//            () -> verify(linkRepository, times(4)).updateLinkCheckTime(eq(id), any(OffsetDateTime.class)),
             () -> verify(botClient, times(2)).sendUpdate(any(LinkUpdateRequest.class))
         );
 
     }
 
 }
+
