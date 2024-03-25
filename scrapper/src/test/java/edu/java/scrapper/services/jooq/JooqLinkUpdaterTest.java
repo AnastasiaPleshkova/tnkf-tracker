@@ -3,6 +3,7 @@ package edu.java.scrapper.services.jooq;
 import edu.java.scrapper.dto.request.client.LinkUpdateRequest;
 import edu.java.scrapper.dto.response.client.GitCommitsResponse;
 import edu.java.scrapper.dto.response.client.GitUserResponse;
+import edu.java.scrapper.dto.response.client.StackQuestion;
 import edu.java.scrapper.dto.response.client.StackUserResponse;
 import edu.java.scrapper.models.Link;
 import edu.java.scrapper.repositories.LinkRepository;
@@ -22,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,7 +47,8 @@ class JooqLinkUpdaterTest {
 
     @Test
     void testUpdateStackLink() {
-        OffsetDateTime time = OffsetDateTime.now().minusDays(1);
+        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime time = now.minusDays(1);
         long id = 1;
         Link link = new Link(
             id,
@@ -60,39 +61,40 @@ class JooqLinkUpdaterTest {
             "test"
         );
 
-        StackUserResponse.Question questionItem = new StackUserResponse.Question("123", OffsetDateTime.now(), 0);
+        StackQuestion questionItem = new StackQuestion("123", now, 0);
 
         when(stackClient.fetchQuestion("123"))
             .thenReturn(new StackUserResponse(Collections.singletonList(questionItem)));
 
         jooqLinkUpdater.updateStackLink(link);
 
-        verify(linkRepository, times(1)).updateUpdatedAtTime(eq(1L), any(OffsetDateTime.class));
+        assertEquals(now, link.getUpdatedAt());
         verify(botClient, times(1)).sendUpdate(any(LinkUpdateRequest.class));
     }
 
     @Test
     void testUpdateGitLink() {
-        OffsetDateTime time = OffsetDateTime.now().minusDays(1);
+        OffsetDateTime now = OffsetDateTime.now().withNano(0);
+        OffsetDateTime time = now.minusDays(1);
         long id = 1;
         Link link = new Link(id, "https://github.com/AnastasiaPleshkova/tnkf-tracker", time, (long) 0,
             (long) 0, time, time, "test"
         );
 
         when(gitClient.fetchUserRepo("AnastasiaPleshkova", "tnkf-tracker"))
-            .thenReturn(new GitUserResponse("name", OffsetDateTime.now()));
+            .thenReturn(new GitUserResponse("name", now));
         when(gitClient.fetchUserRepoCommits("AnastasiaPleshkova", "tnkf-tracker"))
             .thenReturn(new GitCommitsResponse[0]);
         jooqLinkUpdater.updateGitLink(link);
 
-        verify(linkRepository, times(1)).updateUpdatedAtTime(eq(1L), any(OffsetDateTime.class));
+        assertEquals(now, link.getUpdatedAt());
         verify(botClient, times(1)).sendUpdate(any(LinkUpdateRequest.class));
     }
 
     @Test
     void testAnyUpdate() {
         int maxUpdatedRecordsValue = 4;
-        OffsetDateTime today = OffsetDateTime.now();
+        OffsetDateTime today = OffsetDateTime.now().withNano(0);
         OffsetDateTime yesterday = today.minusDays(1);
         long id = 1;
         List<Link> linksToUpdate = List.of(
@@ -119,13 +121,13 @@ class JooqLinkUpdaterTest {
         when(gitClient.fetchUserRepoCommits("AnotherRepoName", "test"))
             .thenReturn(new GitCommitsResponse[0]);
         when(stackClient.fetchQuestion("123"))
-            .thenReturn(new StackUserResponse(Collections.singletonList(new StackUserResponse.Question(
+            .thenReturn(new StackUserResponse(Collections.singletonList(new StackQuestion(
                 "123",
                 today,
                 0
             ))));
         when(stackClient.fetchQuestion("123456"))
-            .thenReturn(new StackUserResponse(Collections.singletonList(new StackUserResponse.Question(
+            .thenReturn(new StackUserResponse(Collections.singletonList(new StackQuestion(
                 "123456",
                 yesterday, 0
             ))));
@@ -136,8 +138,14 @@ class JooqLinkUpdaterTest {
 
         assertAll(
             () -> assertEquals(2, updatedCount),
-            () -> verify(linkRepository, times(2)).updateUpdatedAtTime(eq(id), any(OffsetDateTime.class)),
-            () -> verify(linkRepository, times(4)).updateLinkCheckTime(eq(id), any(OffsetDateTime.class)),
+            () -> assertEquals(today, linksToUpdate.get(0).getUpdatedAt()),
+            () -> assertEquals(today, linksToUpdate.get(0).getLastCheckTime()),
+            () -> assertEquals(yesterday, linksToUpdate.get(1).getUpdatedAt()),
+            () -> assertEquals(today, linksToUpdate.get(1).getLastCheckTime()),
+            () -> assertEquals(today, linksToUpdate.get(2).getUpdatedAt()),
+            () -> assertEquals(today, linksToUpdate.get(2).getLastCheckTime()),
+            () -> assertEquals(yesterday, linksToUpdate.get(3).getUpdatedAt()),
+            () -> assertEquals(today, linksToUpdate.get(3).getLastCheckTime()),
             () -> verify(botClient, times(2)).sendUpdate(any(LinkUpdateRequest.class))
         );
 
@@ -182,9 +190,10 @@ class JooqLinkUpdaterTest {
 
         assertAll(
             () -> assertEquals(2, updatedCount),
-            () -> verify(linkRepository, times(1)).updateUpdatedAtTime(eq(id), any(OffsetDateTime.class)),
-            () -> verify(linkRepository, times(1)).updateLinkCommitsCount(eq(id), eq((long) 1)),
-            () -> verify(linkRepository, times(2)).updateLinkCheckTime(eq(id), any(OffsetDateTime.class)),
+            () -> assertEquals(today, linksToUpdate.get(0).getUpdatedAt()),
+            () -> assertEquals(0, linksToUpdate.get(0).getCommitsCount()),
+            () -> assertEquals(yesterday, linksToUpdate.get(1).getUpdatedAt()),
+            () -> assertEquals(1, linksToUpdate.get(1).getCommitsCount()),
             () -> verify(botClient, times(1)).sendUpdate(argThat(arg ->
                 arg.description().contains(commits) && arg.url().toString().equals(url2))),
             () -> verify(botClient, times(1)).sendUpdate(argThat(arg ->
@@ -215,16 +224,16 @@ class JooqLinkUpdaterTest {
         );
 
         when(stackClient.fetchQuestion("123"))
-            .thenReturn(new StackUserResponse(Collections.singletonList(new StackUserResponse.Question(
+            .thenReturn(new StackUserResponse(Collections.singletonList(new StackQuestion(
                 "123",
                 today,
                 0
             ))));
         when(stackClient.fetchQuestion("123456"))
-            .thenReturn(new StackUserResponse(Collections.singletonList(new StackUserResponse.Question(
+            .thenReturn(new StackUserResponse(Collections.singletonList(new StackQuestion(
                 "123456", today, 5))));
         when(stackClient.fetchQuestion("9999"))
-            .thenReturn(new StackUserResponse(Collections.singletonList(new StackUserResponse.Question(
+            .thenReturn(new StackUserResponse(Collections.singletonList(new StackQuestion(
                 "123",
                 yesterday,
                 0
@@ -239,9 +248,12 @@ class JooqLinkUpdaterTest {
 
         assertAll(
             () -> assertEquals(2, updatedCount),
-            () -> verify(linkRepository, times(2)).updateUpdatedAtTime(eq(id), any(OffsetDateTime.class)),
-            () -> verify(linkRepository, times(1)).updateLinkAnswersCount(eq(id), eq((long) 5)),
-            () -> verify(linkRepository, times(3)).updateLinkCheckTime(eq(id), any(OffsetDateTime.class)),
+            () -> assertEquals(today, linksToUpdate.get(0).getUpdatedAt()),
+            () -> assertEquals(0, linksToUpdate.get(0).getAnswersCount()),
+            () -> assertEquals(today, linksToUpdate.get(1).getUpdatedAt()),
+            () -> assertEquals(5, linksToUpdate.get(1).getAnswersCount()),
+            () -> assertEquals(yesterday, linksToUpdate.get(2).getUpdatedAt()),
+            () -> assertEquals(0, linksToUpdate.get(2).getAnswersCount()),
             () -> verify(botClient, times(1)).sendUpdate(argThat(arg ->
                 arg.description().contains(answers) && arg.url().toString().equals(url2))),
             () -> verify(botClient, times(1)).sendUpdate(argThat(arg ->

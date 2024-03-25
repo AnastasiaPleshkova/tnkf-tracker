@@ -5,7 +5,6 @@ import edu.java.scrapper.dto.dao.LinkDto;
 import edu.java.scrapper.models.Chat;
 import edu.java.scrapper.models.Link;
 import edu.java.scrapper.repositories.LinkRepository;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +58,7 @@ public class JooqLinkRepository implements LinkRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Link> findByLastCheckLimit(int maxUpdatedRecordsValue) {
         return dslContext.selectFrom(Tables.LINK)
             .orderBy(Tables.LINK.LAST_CHECK_TIME)
@@ -75,27 +75,11 @@ public class JooqLinkRepository implements LinkRepository {
             .set(Tables.LINK.UPDATED_AT, linkDto.getUpdatedAt())
             .set(Tables.LINK.CREATED_AT, linkDto.getCreatedAt())
             .set(Tables.LINK.CREATED_BY, linkDto.getCreatedBy())
+            .set(Tables.LINK.ANSWERS_COUNT, linkDto.getAnswersCount())
+            .set(Tables.LINK.COMMITS_COUNT, linkDto.getCommitsCount())
             .execute();
 
     }
-
-    @Override
-    @Transactional
-    public void updateLinkCheckTime(long id, OffsetDateTime time) {
-        dslContext.update(Tables.LINK)
-            .set(Tables.LINK.LAST_CHECK_TIME, time)
-            .where(Tables.LINK.ID.eq(id))
-            .execute();
-    }
-
-    @Override
-    public void updateUpdatedAtTime(long id, OffsetDateTime time) {
-        dslContext.update(Tables.LINK)
-            .set(Tables.LINK.UPDATED_AT, time)
-            .where(Tables.LINK.ID.eq(id))
-            .execute();
-    }
-
 
     @Override
     @Transactional
@@ -121,25 +105,20 @@ public class JooqLinkRepository implements LinkRepository {
             DSL.selectOne()
                 .from(Tables.CHAT_LINK_MAPPING)
                 .where(Tables.CHAT_LINK_MAPPING.CHAT_ID.eq(chatId)
-                .and(Tables.CHAT_LINK_MAPPING.LINK_ID.eq(linkId)))
+                    .and(Tables.CHAT_LINK_MAPPING.LINK_ID.eq(linkId)))
         );
     }
 
     @Override
     @Transactional
-    public void updateLinkCommitsCount(long id, long commits) {
+    public void update(Link link) {
         dslContext.update(Tables.LINK)
-            .set(Tables.LINK.COMMITS_COUNT, commits)
-            .where(Tables.LINK.ID.eq(id))
-            .execute();
-    }
-
-    @Override
-    @Transactional
-    public void updateLinkAnswersCount(long id, long answers) {
-        dslContext.update(Tables.LINK)
-            .set(Tables.LINK.ANSWERS_COUNT, answers)
-            .where(Tables.LINK.ID.eq(id))
+            .set(Tables.LINK.URL, link.getUrl())
+            .set(Tables.LINK.LAST_CHECK_TIME, link.getLastCheckTime())
+            .set(Tables.LINK.UPDATED_AT, link.getUpdatedAt())
+            .set(Tables.LINK.ANSWERS_COUNT, link.getAnswersCount())
+            .set(Tables.LINK.COMMITS_COUNT, link.getCommitsCount())
+            .where(Tables.LINK.ID.eq(link.getId()))
             .execute();
     }
 

@@ -1,7 +1,7 @@
 package edu.java.scrapper.services.jdbc;
 
 import edu.java.scrapper.dto.request.client.LinkUpdateRequest;
-import edu.java.scrapper.dto.response.client.StackUserResponse;
+import edu.java.scrapper.dto.response.client.StackQuestion;
 import edu.java.scrapper.models.Chat;
 import edu.java.scrapper.models.Link;
 import edu.java.scrapper.repositories.LinkRepository;
@@ -49,7 +49,8 @@ public class JdbcLinkUpdater implements LinkUpdater {
                 } else if (link.getUrl().startsWith(GIT)) {
                     updateGitLink(link);
                 }
-                linkRepository.updateLinkCheckTime(link.getId(), currentTime);
+                link.setLastCheckTime(currentTime);
+                linkRepository.update(link);
             } catch (Exception e) {
                 log.info(ERROR_MSG + e.getMessage());
             }
@@ -61,17 +62,17 @@ public class JdbcLinkUpdater implements LinkUpdater {
         Pattern pattern = Pattern.compile("https://stackoverflow.com/questions/(\\d+)/.*");
         Matcher matcher = pattern.matcher(link.getUrl());
         if (matcher.find()) {
-            StackUserResponse.Question question = stackClient.fetchQuestion(matcher.group(1)).items().get(0);
+            StackQuestion question = stackClient.fetchQuestion(matcher.group(1)).items().get(0);
             OffsetDateTime lastModifTimeFromLink = question.lastActivityDate();
             long currentAnswersCount = question.answerCount();
             if (lastModifTimeFromLink.isAfter(link.getUpdatedAt())) {
                 if (currentAnswersCount != link.getAnswersCount()) {
-                    linkRepository.updateLinkAnswersCount(link.getId(), currentAnswersCount);
+                    link.setAnswersCount(currentAnswersCount);
                     sendUpdate(link, ANSWERS);
                 } else {
                     sendUpdate(link, SOME_CHANGES);
                 }
-                linkRepository.updateUpdatedAtTime(link.getId(), lastModifTimeFromLink);
+                link.setUpdatedAt(lastModifTimeFromLink);
                 count++;
             }
         }
@@ -84,7 +85,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
             long currentCommitsCount =
                 gitClient.fetchUserRepoCommits(matcher.group(1), matcher.group(2)).length;
             if (link.getCommitsCount() != currentCommitsCount) {
-                linkRepository.updateLinkCommitsCount(link.getId(), currentCommitsCount);
+                link.setCommitsCount(currentCommitsCount);
                 sendUpdate(link, COMMITS);
                 count++;
             }
@@ -92,10 +93,11 @@ public class JdbcLinkUpdater implements LinkUpdater {
             OffsetDateTime lastModifTimeFromLink =
                 gitClient.fetchUserRepo(matcher.group(1), matcher.group(2)).updatedAt();
             if (lastModifTimeFromLink.isAfter(link.getUpdatedAt())) {
-                linkRepository.updateUpdatedAtTime(link.getId(), lastModifTimeFromLink);
+                link.setUpdatedAt(lastModifTimeFromLink);
                 sendUpdate(link, SOME_CHANGES);
                 count++;
             }
+
         }
     }
 

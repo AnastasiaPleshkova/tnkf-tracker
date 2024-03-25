@@ -4,7 +4,6 @@ import edu.java.scrapper.dto.dao.LinkDto;
 import edu.java.scrapper.models.Chat;
 import edu.java.scrapper.models.Link;
 import edu.java.scrapper.repositories.LinkRepository;
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -63,24 +62,17 @@ public class JdbcLinkRepository implements LinkRepository {
 
     @Transactional
     public void addLink(LinkDto linkDto) {
-        jdbcTemplate.update(
-            "INSERT INTO link (url, last_check_time, updated_at, created_at, created_by) VALUES (?,?,?,?,?)",
+        jdbcTemplate.update("""
+            INSERT INTO link (url, last_check_time, updated_at, created_at, created_by, answers_count, commits_count)
+            VALUES (?,?,?,?,?,?,?)""",
             linkDto.getUrl(),
             linkDto.getLastCheckTime(),
             linkDto.getUpdatedAt(),
             linkDto.getCreatedAt(),
-            linkDto.getCreatedBy()
+            linkDto.getCreatedBy(),
+            linkDto.getAnswersCount(),
+            linkDto.getCommitsCount()
         );
-    }
-
-    @Transactional
-    public void updateLinkCheckTime(long id, OffsetDateTime time) {
-        jdbcTemplate.update("UPDATE link SET last_check_time = ? WHERE id = ?", time, id);
-    }
-
-    @Transactional
-    public void updateUpdatedAtTime(long id, OffsetDateTime time) {
-        jdbcTemplate.update("UPDATE link SET updated_at = ? WHERE id = ?", time, id);
     }
 
     @Transactional
@@ -98,18 +90,24 @@ public class JdbcLinkRepository implements LinkRepository {
     @Transactional(readOnly = true)
     public boolean checkTracking(long chatId, long linkId) {
         return jdbcTemplate.queryForObject("""
-            SELECT EXISTS (SELECT 1 FROM chat_link_mapping WHERE chat_id = ? AND link_id = ?)""",
-            Boolean.class, chatId, linkId);
+                SELECT EXISTS (SELECT 1 FROM chat_link_mapping WHERE chat_id = ? AND link_id = ?)""",
+            Boolean.class, chatId, linkId
+        );
     }
 
     @Transactional
-    public void updateLinkCommitsCount(long id, long commits) {
-        jdbcTemplate.update("UPDATE link SET commits_count = ? WHERE id = ?", commits, id);
-    }
-
-    @Transactional
-    public void updateLinkAnswersCount(long id, long answers) {
-        jdbcTemplate.update("UPDATE link SET answers_count = ? WHERE id = ?", answers, id);
+    public void update(Link link) {
+        jdbcTemplate.update("""
+                UPDATE link
+                SET url = ?,
+                    last_check_time = ?,
+                    updated_at = ?,
+                    answers_count = ?,
+                    commits_count = ?
+                WHERE id = ?
+                """, link.getUrl(), link.getLastCheckTime(), link.getUpdatedAt(),
+            link.getAnswersCount(), link.getCommitsCount(), link.getId()
+        );
     }
 
 }

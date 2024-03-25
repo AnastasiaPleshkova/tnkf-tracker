@@ -146,10 +146,11 @@ class JdbcRepositoryTest extends IntegrationTest {
         List<Link> byLastCheckLimit = linkRepository.findByLastCheckLimit(1);
         Link linkToUpdate = byLastCheckLimit.get(0);
 
-        linkRepository.updateLinkCheckTime(linkToUpdate.getId(), todayTime);
-        linkRepository.updateUpdatedAtTime(linkToUpdate.getId(), todayTime);
-        linkRepository.updateLinkCommitsCount(linkToUpdate.getId(), 2);
-        linkRepository.updateLinkAnswersCount(linkToUpdate.getId(), 2);
+        linkToUpdate.setLastCheckTime(todayTime);
+        linkToUpdate.setUpdatedAt(todayTime);
+        linkToUpdate.setCommitsCount((long) 2);
+        linkToUpdate.setAnswersCount((long) 2);
+        linkRepository.update(linkToUpdate);
 
         Link resultLink = linkRepository.find(url).get();
 
