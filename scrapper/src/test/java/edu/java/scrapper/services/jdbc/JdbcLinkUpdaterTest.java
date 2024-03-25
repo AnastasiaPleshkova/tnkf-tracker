@@ -12,6 +12,7 @@ import edu.java.scrapper.webClients.GitClient;
 import edu.java.scrapper.webClients.StackClient;
 import java.time.OffsetDateTime;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,7 +58,8 @@ class JdbcLinkUpdaterTest {
             (long) 0,
             time,
             time,
-            "test"
+            "test",
+            new HashSet<>()
         );
 
         OffsetDateTime now = OffsetDateTime.now();
@@ -76,8 +78,15 @@ class JdbcLinkUpdaterTest {
     void testUpdateGitLink() {
         OffsetDateTime time = OffsetDateTime.now().minusDays(1);
         long id = 1;
-        Link link = new Link(id, "https://github.com/AnastasiaPleshkova/tnkf-tracker", time, (long) 0,
-            (long) 0, time, time, "test"
+
+        Link link = new Link(id,
+            "https://github.com/AnastasiaPleshkova/tnkf-tracker",
+            time,
+            (long)0,(long)0,
+            time,
+            time,
+            "test",
+            new HashSet<>()
         );
 
         OffsetDateTime now = OffsetDateTime.now();
@@ -99,17 +108,45 @@ class JdbcLinkUpdaterTest {
         OffsetDateTime yesterday = today.minusDays(1);
         long id = 1;
         List<Link> linksToUpdate = List.of(
-            new Link(id, "https://github.com/AnastasiaPleshkova/tnkf-tracker", yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+            new Link(
+                id,
+                "https://github.com/AnastasiaPleshkova/tnkf-tracker",
+                yesterday,
+                (long)0,(long)0,
+                yesterday,
+                yesterday,
+                "test",
+                new HashSet<>()
             ),
-            new Link(id, "https://github.com/AnotherRepoName/test", yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+            new Link(
+                id,
+                "https://github.com/AnotherRepoName/test",
+                yesterday,
+                (long)0,(long)0,
+                yesterday,
+                yesterday,
+                "test",
+                new HashSet<>()
             ),
-            new Link(id, "https://stackoverflow.com/questions/123/test-url", yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+            new Link(
+                id,
+                "https://stackoverflow.com/questions/123/test-url",
+                yesterday,
+                (long)0,(long)0,
+                yesterday,
+                yesterday,
+                "test",
+                new HashSet<>()
             ),
-            new Link(id, "https://stackoverflow.com/questions/123456/test-url", yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+            new Link(
+                id,
+                "https://stackoverflow.com/questions/123456/test-url",
+                yesterday,
+                (long)0,(long)0,
+                yesterday,
+                yesterday,
+                "test",
+                new HashSet<>()
             )
         );
 

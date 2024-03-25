@@ -6,6 +6,7 @@ import edu.java.scrapper.models.Link;
 import edu.java.scrapper.services.LinkService;
 import java.net.URI;
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -46,7 +47,7 @@ class LinkControllerTest {
             (long) 0,
             OffsetDateTime.now(),
             OffsetDateTime.now(),
-            "test"
+            "test", new HashSet<>()
         );
 
         when(linkService.add(id, uri)).thenReturn(link);
@@ -69,7 +70,7 @@ class LinkControllerTest {
             (long) 0,
             OffsetDateTime.now(),
             OffsetDateTime.now(),
-            "test"
+            "test", new HashSet<>()
         );
 
         when(linkService.remove(id, uri)).thenReturn(link);

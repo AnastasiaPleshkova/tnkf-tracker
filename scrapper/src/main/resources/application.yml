@@ -4,6 +4,7 @@ app:
     interval: 10s
     force-check-delay: 10s
   max-updated-records-value: 5
+  database-access-type: jpa
   githubUrl: https://api.github.com
   stackoverflowUrl: https://api.stackexchange.com/2.3
   botUrl: http://localhost:8090/

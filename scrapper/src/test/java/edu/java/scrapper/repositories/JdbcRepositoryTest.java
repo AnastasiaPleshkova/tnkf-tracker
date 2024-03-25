@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
+@SpringBootTest(properties = "app.database-access-type=jdbc")
 class JdbcRepositoryTest extends IntegrationTest {
     @Autowired
     @Qualifier(value = "jdbcChatRepository")
@@ -139,7 +139,8 @@ class JdbcRepositoryTest extends IntegrationTest {
         OffsetDateTime todayTime = OffsetDateTime.now().withNano(0);
         OffsetDateTime oldTime = todayTime.minusDays(1000);
         String url = "https://github.com/AnastasiaPleshkova/CheckFuel";
-        LinkDto linkDto = new LinkDto(url, oldTime, (long) 0, (long) 0, oldTime, oldTime, admin);
+
+        LinkDto linkDto = new LinkDto(url, oldTime,(long) 0, (long) 0, oldTime, oldTime, admin);
 
         linkRepository.addLink(linkDto);
 
