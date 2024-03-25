@@ -6,7 +6,6 @@ import edu.java.scrapper.dto.dao.LinkDto;
 import edu.java.scrapper.models.Chat;
 import edu.java.scrapper.models.Link;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -22,12 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-class JdbcRepositoryTest extends IntegrationTest {
+class JooqRepositoryTest extends IntegrationTest {
     @Autowired
-    @Qualifier(value = "jdbcChatRepository")
+    @Qualifier(value = "jooqChatRepository")
     private ChatRepository chatRepository;
     @Autowired
-    @Qualifier(value = "jdbcLinkRepository")
+    @Qualifier(value = "jooqLinkRepository")
     private LinkRepository linkRepository;
 
     @Test
@@ -37,7 +36,7 @@ class JdbcRepositoryTest extends IntegrationTest {
         long chatId1 = 1111;
         long chatId2 = 2222;
         String admin = "admin";
-        OffsetDateTime time = OffsetDateTime.of(2024, 3, 14, 9, 55, 0, 0, ZoneOffset.UTC);
+        OffsetDateTime time = OffsetDateTime.now();
         ChatDto chatDto1 = new ChatDto(chatId1, time, admin);
         ChatDto chatDto2 = new ChatDto(chatId2, time, admin);
 
@@ -52,7 +51,7 @@ class JdbcRepositoryTest extends IntegrationTest {
             () -> assertTrue(chatRepository.find(chatId2).isPresent())
         );
 
-        String url = "https://github.com/AnastasiaPleshkova/tnkf-tracker";
+        String url = "https://github.com/AnastasiaPleshkova/BeatBox";
         LinkDto linkDto = new LinkDto(url, time, (long) 0, (long) 0, time, time, admin);
 
         linkRepository.addLink(linkDto);
@@ -115,7 +114,7 @@ class JdbcRepositoryTest extends IntegrationTest {
         Optional<Chat> createdChat = chatRepository.find(chatId1);
         assertTrue(createdChat.isPresent());
 
-        String url = "https://github.com/AnastasiaPleshkova/library";
+        String url = "https://github.com/AnastasiaPleshkova/CheckFuelWEB";
         LinkDto linkDto = new LinkDto(url, time, (long) 0, (long) 0, time, time, admin);
 
         linkRepository.addLink(linkDto);
@@ -138,7 +137,7 @@ class JdbcRepositoryTest extends IntegrationTest {
         String admin = "admin";
         OffsetDateTime todayTime = OffsetDateTime.now().withNano(0);
         OffsetDateTime oldTime = todayTime.minusDays(1000);
-        String url = "https://github.com/AnastasiaPleshkova/CheckFuel";
+        String url = "https://github.com/AnastasiaPleshkova/sensorsReaderREST";
         LinkDto linkDto = new LinkDto(url, oldTime, (long) 0, (long) 0, oldTime, oldTime, admin);
 
         linkRepository.addLink(linkDto);
@@ -163,5 +162,3 @@ class JdbcRepositoryTest extends IntegrationTest {
         );
     }
 }
-
-

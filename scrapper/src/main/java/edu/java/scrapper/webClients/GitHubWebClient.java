@@ -1,5 +1,6 @@
 package edu.java.scrapper.webClients;
 
+import edu.java.scrapper.dto.response.client.GitCommitsResponse;
 import edu.java.scrapper.dto.response.client.GitErrorResponse;
 import edu.java.scrapper.dto.response.client.GitUserResponse;
 import org.springframework.http.HttpStatusCode;
@@ -30,6 +31,15 @@ public class GitHubWebClient implements GitClient {
             .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(GitErrorResponse.class)
                 .flatMap(errorResponse -> Mono.error(new RuntimeException(errorResponse.message()))))
             .bodyToMono(GitUserResponse.class).block();
+    }
+
+    @Override
+    public GitCommitsResponse[] fetchUserRepoCommits(String user, String repo) {
+        return this.webClient.get().uri("/repos/{owner}/{repo}/commits", user, repo)
+            .retrieve()
+            .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(GitErrorResponse.class)
+                .flatMap(errorResponse -> Mono.error(new RuntimeException(errorResponse.message()))))
+            .bodyToMono(GitCommitsResponse[].class).block();
     }
 }
 

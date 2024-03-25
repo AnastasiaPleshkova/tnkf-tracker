@@ -1,4 +1,4 @@
-package edu.java.scrapper.services.jdbc;
+package edu.java.scrapper.services.jooq;
 
 import edu.java.scrapper.dto.request.client.LinkUpdateRequest;
 import edu.java.scrapper.dto.response.client.StackQuestion;
@@ -17,12 +17,14 @@ import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+@Primary
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class JdbcLinkUpdater implements LinkUpdater {
+public class JooqLinkUpdater implements LinkUpdater {
     private static final String GIT = "https://github.com";
     private static final String SOF = "https://stackoverflow.com";
     private static final String ERROR_MSG = "Ссылка недоступна id: %d, url:%s";
@@ -52,7 +54,7 @@ public class JdbcLinkUpdater implements LinkUpdater {
                 link.setLastCheckTime(currentTime);
                 linkRepository.update(link);
             } catch (Exception e) {
-                log.info(ERROR_MSG + e.getMessage());
+                log.info(String.format(ERROR_MSG, link.getId(), link.getUrl()) + e.getMessage());
             }
         }
         return count;
@@ -97,7 +99,6 @@ public class JdbcLinkUpdater implements LinkUpdater {
                 sendUpdate(link, SOME_CHANGES);
                 count++;
             }
-
         }
     }
 
