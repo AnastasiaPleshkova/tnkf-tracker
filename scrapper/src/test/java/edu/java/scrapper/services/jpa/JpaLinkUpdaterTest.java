@@ -52,7 +52,7 @@ class JpaLinkUpdaterTest {
         OffsetDateTime time = OffsetDateTime.now().minusDays(1);
         String url = "https://stackoverflow.com/questions/123/test-url";
         long id = 1;
-        Link link = new Link(id, url, time, time, time, "test", new HashSet<>());
+        Link link = new Link(id, url, time, (long)0,(long)0,time, time, "test", new HashSet<>());
 
         StackUserResponse.Question questionItem = new StackUserResponse.Question("123", OffsetDateTime.now());
 
@@ -74,7 +74,7 @@ class JpaLinkUpdaterTest {
         OffsetDateTime time = OffsetDateTime.now().minusDays(1);
         long id = 1;
         String url = "https://github.com/AnastasiaPleshkova/tnkf-tracker";
-        Link link = new Link(id, url, time, time, time, "test", new HashSet<>());
+        Link link = new Link(id, url, time, (long)0,(long)0,time, time, "test", new HashSet<>());
 
         when(gitClient.fetchUserRepo("AnastasiaPleshkova", "tnkf-tracker"))
             .thenReturn(new GitUserResponse("name", OffsetDateTime.now()));
@@ -95,6 +95,7 @@ class JpaLinkUpdaterTest {
                 id,
                 "https://github.com/AnastasiaPleshkova/tnkf-tracker",
                 yesterday,
+                (long)0,(long)0,
                 yesterday,
                 yesterday,
                 "test",
@@ -104,6 +105,7 @@ class JpaLinkUpdaterTest {
                 id,
                 "https://github.com/AnotherRepoName/test",
                 yesterday,
+                (long)0,(long)0,
                 yesterday,
                 yesterday,
                 "test",
@@ -113,6 +115,7 @@ class JpaLinkUpdaterTest {
                 id,
                 "https://stackoverflow.com/questions/123/test-url",
                 yesterday,
+                (long)0,(long)0,
                 yesterday,
                 yesterday,
                 "test",
@@ -122,6 +125,7 @@ class JpaLinkUpdaterTest {
                 id,
                 "https://stackoverflow.com/questions/123456/test-url",
                 yesterday,
+                (long)0,(long)0,
                 yesterday,
                 yesterday,
                 "test",

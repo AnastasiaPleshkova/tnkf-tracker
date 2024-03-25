@@ -50,7 +50,7 @@ class JdbcRepositoryTest extends IntegrationTest {
         );
 
         String url = "https://github.com/AnastasiaPleshkova/tnkf-tracker";
-        LinkDto linkDto = new LinkDto(url, time, time, time, admin);
+        LinkDto linkDto = new LinkDto(url, time, (long) 0, (long) 0, time, time, admin);
 
         linkRepository.addLink(linkDto);
         Link link = linkRepository.find(url).orElseThrow();
@@ -111,7 +111,7 @@ class JdbcRepositoryTest extends IntegrationTest {
         assertTrue(createdChat.isPresent());
 
         String url = "https://github.com/AnastasiaPleshkova/library";
-        LinkDto linkDto = new LinkDto(url, time, time, time, admin);
+        LinkDto linkDto = new LinkDto(url, time, (long) 0, (long) 0, time, time, admin);
 
         linkRepository.addLink(linkDto);
         Link link = linkRepository.find(url).orElseThrow();
@@ -134,7 +134,7 @@ class JdbcRepositoryTest extends IntegrationTest {
         OffsetDateTime todayTime = OffsetDateTime.now().withNano(0);
         OffsetDateTime oldTime = todayTime.minusDays(1000);
         String url = "https://github.com/AnastasiaPleshkova/CheckFuel";
-        LinkDto linkDto = new LinkDto(url, oldTime, oldTime, oldTime, admin);
+        LinkDto linkDto = new LinkDto(url, oldTime,(long) 0, (long) 0, oldTime, oldTime, admin);
 
         linkRepository.addLink(linkDto);
 

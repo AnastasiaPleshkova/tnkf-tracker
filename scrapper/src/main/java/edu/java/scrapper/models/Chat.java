@@ -9,8 +9,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -40,7 +42,13 @@ public class Chat {
     @JoinTable(name = "chat_link_mapping",
                joinColumns = @JoinColumn(name = "chat_id", referencedColumnName = "id"),
                inverseJoinColumns = @JoinColumn(name = "link_id", referencedColumnName = "id"))
-    Set<Link> links;
+    Set<Link> links = new HashSet<>();
+
+    @PrePersist
+    protected void prePersist() {
+        createdAt = OffsetDateTime.now();
+        createdBy = "admin";
+    }
 
     @Override
     public boolean equals(Object o) {

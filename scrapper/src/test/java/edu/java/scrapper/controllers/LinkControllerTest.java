@@ -43,6 +43,8 @@ class LinkControllerTest {
         Link link = new Link(id,
             uri.toString(),
             OffsetDateTime.now(),
+            (long) 0,
+            (long) 0,
             OffsetDateTime.now(),
             OffsetDateTime.now(),
             "test", new HashSet<>()
@@ -64,6 +66,8 @@ class LinkControllerTest {
         Link link = new Link(id,
             uri.toString(),
             OffsetDateTime.now(),
+            (long) 0,
+            (long) 0,
             OffsetDateTime.now(),
             OffsetDateTime.now(),
             "test", new HashSet<>()

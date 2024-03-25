@@ -64,7 +64,7 @@ public class JdbcLinkService implements LinkService {
 
     private LinkDto createDto(String url) {
         OffsetDateTime time = OffsetDateTime.now().withNano(0);
-        LinkDto linkToCreate = new LinkDto(url, time, time, time, "admin");
+        LinkDto linkToCreate = new LinkDto(url, time, (long) 0, (long) 0, time, time, "admin");
         return linkToCreate;
     }
 

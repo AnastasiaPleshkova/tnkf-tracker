@@ -4,7 +4,6 @@ import edu.java.scrapper.exceptions.ChatAlreadyRegistered;
 import edu.java.scrapper.models.Chat;
 import edu.java.scrapper.repositories.jpa.JpaChatRepository;
 import edu.java.scrapper.services.ChatService;
-import java.time.OffsetDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,8 +17,6 @@ public class JpaChatService implements ChatService {
         if (jpaChatRepository.findByTgChatId(tgChatId).isEmpty()) {
             Chat chat = new Chat();
             chat.setTgChatId(tgChatId);
-            chat.setCreatedAt(OffsetDateTime.now());
-            chat.setCreatedBy("admin");
             jpaChatRepository.save(chat);
         } else {
             throw new ChatAlreadyRegistered();

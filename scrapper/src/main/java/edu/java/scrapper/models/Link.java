@@ -30,7 +30,10 @@ public class Link {
     private String url;
     @Column(name = "last_check_time")
     private OffsetDateTime lastCheckTime;
-
+    @Column(name = "answers_count")
+    private Long answersCount;
+    @Column(name = "commits_count")
+    private Long commitsCount;
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
     @Column(name = "created_at")

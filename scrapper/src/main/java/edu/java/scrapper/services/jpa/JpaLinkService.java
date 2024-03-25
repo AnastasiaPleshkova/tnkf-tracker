@@ -10,7 +10,6 @@ import edu.java.scrapper.services.LinkService;
 import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +29,6 @@ public class JpaLinkService implements LinkService {
         }
 
         Set<Link> trackedLinks = chat.getLinks();
-        if (trackedLinks == null) {
-            trackedLinks = new HashSet<>();
-        }
         trackedLinks.add(link);
         chat.setLinks(trackedLinks);
         jpaChatRepository.save(chat);

@@ -14,18 +14,10 @@ import org.springframework.stereotype.Repository;
 public interface JpaLinkRepository extends JpaRepository<Link, Long> {
     Optional<Link> findByUrl(String url);
 
-
     boolean existsByChatsIdAndChatsLinksId(Long chatId, Long linkId);
-
 
     Collection<Link> findByChatsTgChatId(Long tgChatId);
 
     List<Link> findAllByOrderByLastCheckTimeAsc(Pageable pageable);
-
-
-
-
-
-
 
 }
