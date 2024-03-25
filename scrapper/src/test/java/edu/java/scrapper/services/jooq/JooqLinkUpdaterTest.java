@@ -12,6 +12,7 @@ import edu.java.scrapper.webClients.GitClient;
 import edu.java.scrapper.webClients.StackClient;
 import java.time.OffsetDateTime;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,7 +59,8 @@ class JooqLinkUpdaterTest {
             (long) 0,
             time,
             time,
-            "test"
+            "test",
+            new HashSet<>()
         );
 
         StackQuestion questionItem = new StackQuestion("123", now, 0);
@@ -78,7 +80,7 @@ class JooqLinkUpdaterTest {
         OffsetDateTime time = now.minusDays(1);
         long id = 1;
         Link link = new Link(id, "https://github.com/AnastasiaPleshkova/tnkf-tracker", time, (long) 0,
-            (long) 0, time, time, "test"
+            (long) 0, time, time, "test", new HashSet<>()
         );
 
         when(gitClient.fetchUserRepo("AnastasiaPleshkova", "tnkf-tracker"))
@@ -99,16 +101,16 @@ class JooqLinkUpdaterTest {
         long id = 1;
         List<Link> linksToUpdate = List.of(
             new Link(id, "https://github.com/AnastasiaPleshkova/tnkf-tracker", yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+                (long) 0, yesterday, yesterday, "test", new HashSet<>()
             ),
             new Link(id, "https://github.com/AnotherRepoName/test", yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+                (long) 0, yesterday, yesterday, "test", new HashSet<>()
             ),
             new Link(id, "https://stackoverflow.com/questions/123/test-url", yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+                (long) 0, yesterday, yesterday, "test", new HashSet<>()
             ),
             new Link(id, "https://stackoverflow.com/questions/123456/test-url", yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+                (long) 0, yesterday, yesterday, "test", new HashSet<>()
             )
         );
 
@@ -161,10 +163,10 @@ class JooqLinkUpdaterTest {
         String url2 = "https://github.com/AnotherRepoName/test";
         List<Link> linksToUpdate = List.of(
             new Link(id, url1, yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+                (long) 0, yesterday, yesterday, "test", new HashSet<>()
             ),
             new Link(id, url2, yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+                (long) 0, yesterday, yesterday, "test", new HashSet<>()
             )
         );
 
@@ -213,13 +215,13 @@ class JooqLinkUpdaterTest {
         String url3 = "https://stackoverflow.com/questions/9999/no-change-test-url";
         List<Link> linksToUpdate = List.of(
             new Link(id, url1, yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+                (long) 0, yesterday, yesterday, "test", new HashSet<>()
             ),
             new Link(id, url2, yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+                (long) 0, yesterday, yesterday, "test", new HashSet<>()
             ),
             new Link(id, url3, yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+                (long) 0, yesterday, yesterday, "test", new HashSet<>()
             )
         );
 

@@ -17,12 +17,8 @@ import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
 
-@Primary
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class JooqLinkUpdater implements LinkUpdater {
     private static final String GIT = "https://github.com";

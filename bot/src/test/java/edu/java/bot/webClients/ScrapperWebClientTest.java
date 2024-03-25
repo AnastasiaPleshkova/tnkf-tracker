@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @WireMockTest(httpPort = 8080)
-public class ScrapperWebClientTest {
+class ScrapperWebClientTest {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 

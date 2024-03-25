@@ -195,10 +195,10 @@ class JdbcLinkUpdaterTest {
         String url2 = "https://github.com/AnotherRepoName/test";
         List<Link> linksToUpdate = List.of(
             new Link(id, url1, yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+                (long) 0, yesterday, yesterday, "test", new HashSet<>()
             ),
             new Link(id, url2, yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+                (long) 0, yesterday, yesterday, "test", new HashSet<>()
             )
         );
 
@@ -247,13 +247,13 @@ class JdbcLinkUpdaterTest {
         String url3 = "https://stackoverflow.com/questions/9999/no-change-test-url";
         List<Link> linksToUpdate = List.of(
             new Link(id, url1, yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+                (long) 0, yesterday, yesterday, "test", new HashSet<>()
             ),
             new Link(id, url2, yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+                (long) 0, yesterday, yesterday, "test", new HashSet<>()
             ),
             new Link(id, url3, yesterday, (long) 0,
-                (long) 0, yesterday, yesterday, "test"
+                (long) 0, yesterday, yesterday, "test", new HashSet<>()
             )
         );
 

@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 @ExtendWith(MockitoExtension.class)
-public class ListCommandTest {
+class ListCommandTest {
     @Mock
     Update update;
     @Mock

@@ -18,6 +18,7 @@ public class JdbcChatRepository implements ChatRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
+    @Override
     @Transactional(readOnly = true)
     public Optional<Chat> find(long tgChatId) {
         return jdbcTemplate.query(GET_ALL + " WHERE tg_chat_id=?", new Object[] {tgChatId},
@@ -25,11 +26,13 @@ public class JdbcChatRepository implements ChatRepository {
         ).stream().findAny();
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<Chat> findAll() {
         return jdbcTemplate.query(GET_ALL, new BeanPropertyRowMapper<>(Chat.class));
     }
 
+    @Override
     @Transactional
     public int add(ChatDto chatDto) {
         return jdbcTemplate.update("INSERT INTO chat (tg_chat_id, created_at, created_by) VALUES (?,?,?)",
@@ -37,6 +40,7 @@ public class JdbcChatRepository implements ChatRepository {
         );
     }
 
+    @Override
     @Transactional
     public int remove(long tgChatId) {
         return jdbcTemplate.update("DELETE FROM chat WHERE tg_chat_id=?", tgChatId);

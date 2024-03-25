@@ -9,7 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 @ExtendWith(MockitoExtension.class)
-public class DatabaseUserServiceTest {
+class DatabaseUserServiceTest {
     @InjectMocks
     DatabaseUserService databaseUserService;
 

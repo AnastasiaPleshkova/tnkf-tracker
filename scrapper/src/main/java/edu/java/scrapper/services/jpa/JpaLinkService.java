@@ -8,7 +8,6 @@ import edu.java.scrapper.repositories.jpa.JpaChatRepository;
 import edu.java.scrapper.repositories.jpa.JpaLinkRepository;
 import edu.java.scrapper.services.LinkService;
 import java.net.URI;
-import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -72,11 +71,6 @@ public class JpaLinkService implements LinkService {
     private Link createLink(String url) {
         Link linkToCreate = new Link();
         linkToCreate.setUrl(url);
-        OffsetDateTime time = OffsetDateTime.now();
-        linkToCreate.setUpdatedAt(time);
-        linkToCreate.setLastCheckTime(time);
-        linkToCreate.setCreatedAt(time);
-        linkToCreate.setCreatedBy("admin");
         return linkToCreate;
     }
 

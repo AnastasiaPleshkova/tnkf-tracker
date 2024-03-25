@@ -6,11 +6,7 @@ import edu.java.scrapper.repositories.ChatRepository;
 import edu.java.scrapper.services.ChatService;
 import java.time.OffsetDateTime;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
 
-@Primary
-@Service
 @RequiredArgsConstructor
 public class JooqChatService implements ChatService {
 

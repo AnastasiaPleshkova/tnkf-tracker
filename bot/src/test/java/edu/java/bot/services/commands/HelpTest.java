@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class HelpTest {
+class HelpTest {
     @Mock
     Update update;
     @Mock
@@ -56,8 +56,8 @@ public class HelpTest {
 
         SendMessage msg = help.process(update);
 
-        assertThat(msg.getParameters().get("chat_id")).isEqualTo(100L);
-        assertThat(msg.getParameters().get("text")).isEqualTo(result.toString());
+        assertThat(msg.getParameters()).containsEntry("chat_id", 100L);
+        assertThat(msg.getParameters()).containsEntry("text", result.toString());
     }
 
     @Test

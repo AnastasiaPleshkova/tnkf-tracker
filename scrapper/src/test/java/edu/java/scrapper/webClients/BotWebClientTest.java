@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @WireMockTest(httpPort = 8090)
-public class BotWebClientTest {
+class BotWebClientTest {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test

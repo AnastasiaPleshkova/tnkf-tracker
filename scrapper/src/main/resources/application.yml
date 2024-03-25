@@ -1,7 +1,7 @@
 app:
   scheduler:
     enable: true
-    interval: 10s
+    interval: 60s
     force-check-delay: 10s
   max-updated-records-value: 5
   database-access-type: jpa

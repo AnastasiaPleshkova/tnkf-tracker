@@ -6,8 +6,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import lombok.AllArgsConstructor;
@@ -35,7 +37,6 @@ public class Link {
     @Column(name = "commits_count")
     private Long commitsCount;
     @Column(name = "updated_at")
-
     private OffsetDateTime updatedAt;
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
@@ -43,7 +44,18 @@ public class Link {
     private String createdBy;
 
     @ManyToMany(mappedBy = "links")
-    Set<Chat> chats;
+    Set<Chat> chats = new HashSet<>();
+
+    @PrePersist
+    protected void prePersist() {
+        answersCount = (long) 0;
+        commitsCount = (long) 0;
+        OffsetDateTime now = OffsetDateTime.now();
+        updatedAt = now;
+        lastCheckTime = now;
+        createdAt = now;
+        createdBy = "admin";
+    }
 
     @Override
     public boolean equals(Object o) {

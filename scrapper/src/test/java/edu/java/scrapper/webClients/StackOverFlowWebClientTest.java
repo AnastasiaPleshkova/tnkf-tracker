@@ -19,7 +19,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @WireMockTest(httpPort = 8080)
-public class StackOverFlowWebClientTest {
+class StackOverFlowWebClientTest {
 
     private static ObjectMapper objectMapper;
 
@@ -31,7 +31,7 @@ public class StackOverFlowWebClientTest {
     }
 
     @Test
-    public void shouldReturnCorrectResponse() throws JsonProcessingException {
+    void shouldReturnCorrectResponse() throws JsonProcessingException {
         String id = "33310960";
         ZoneId zoneId = ZoneId.of("Europe/Moscow");
         OffsetDateTime time = OffsetDateTime.ofInstant(Instant.ofEpochSecond(1653594316), zoneId);

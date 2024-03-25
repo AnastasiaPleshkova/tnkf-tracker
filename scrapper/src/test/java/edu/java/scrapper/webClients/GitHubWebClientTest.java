@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @WireMockTest(httpPort = 8080)
-public class GitHubWebClientTest {
+class GitHubWebClientTest {
 
     private static ObjectMapper objectMapper;
 
@@ -30,7 +30,7 @@ public class GitHubWebClientTest {
     }
 
     @Test
-    public void fetchUserRepoCorrectResponse() throws JsonProcessingException {
+    void fetchUserRepoCorrectResponse() throws JsonProcessingException {
         String user = "AnastasiaPleshkova";
         String repository = "tnkf-tracker";
         OffsetDateTime time = OffsetDateTime.parse("2024-02-16T11:42:20Z");
@@ -54,7 +54,7 @@ public class GitHubWebClientTest {
     }
 
     @Test
-    public void fetchUserCorrectResponse() throws JsonProcessingException {
+    void fetchUserCorrectResponse() throws JsonProcessingException {
         String user = "AnastasiaPleshkova";
         OffsetDateTime time = OffsetDateTime.parse("2024-02-16T11:42:20Z");
         GitUserResponse response = new GitUserResponse(user, time);

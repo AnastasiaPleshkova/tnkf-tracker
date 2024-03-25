@@ -2,6 +2,7 @@ package edu.java.scrapper.services.jpa;
 
 import edu.java.scrapper.dto.request.client.LinkUpdateRequest;
 import edu.java.scrapper.dto.response.client.GitUserResponse;
+import edu.java.scrapper.dto.response.client.StackQuestion;
 import edu.java.scrapper.dto.response.client.StackUserResponse;
 import edu.java.scrapper.models.Chat;
 import edu.java.scrapper.models.Link;
@@ -54,7 +55,7 @@ class JpaLinkUpdaterTest {
         long id = 1;
         Link link = new Link(id, url, time, (long)0,(long)0,time, time, "test", new HashSet<>());
 
-        StackUserResponse.Question questionItem = new StackUserResponse.Question("123", OffsetDateTime.now());
+        StackQuestion questionItem = new StackQuestion("123", OffsetDateTime.now(), 0);
 
         when(stackClient.fetchQuestion("123"))
             .thenReturn(new StackUserResponse(Collections.singletonList(questionItem)));
@@ -138,11 +139,11 @@ class JpaLinkUpdaterTest {
         when(gitClient.fetchUserRepo("AnotherRepoName", "test"))
             .thenReturn(new GitUserResponse("test", yesterday));
         when(stackClient.fetchQuestion("123"))
-            .thenReturn(new StackUserResponse(Collections.singletonList(new StackUserResponse.Question("123", today))));
+            .thenReturn(new StackUserResponse(Collections.singletonList(new StackQuestion("123", today, 0))));
         when(stackClient.fetchQuestion("123456"))
-            .thenReturn(new StackUserResponse(Collections.singletonList(new StackUserResponse.Question(
+            .thenReturn(new StackUserResponse(Collections.singletonList(new StackQuestion(
                 "123456",
-                yesterday
+                yesterday, 0
             ))));
 
         when(linkRepository.findAllByOrderByLastCheckTimeAsc(Pageable.ofSize(maxUpdatedRecordsValue))).thenReturn(
@@ -152,8 +153,6 @@ class JpaLinkUpdaterTest {
 
         assertAll(
             () -> assertEquals(2, updatedCount),
-//            () -> verify(linkRepository, times(2)).updateUpdatedAtTime(eq(id), any(OffsetDateTime.class)),
-//            () -> verify(linkRepository, times(4)).updateLinkCheckTime(eq(id), any(OffsetDateTime.class)),
             () -> verify(botClient, times(2)).sendUpdate(any(LinkUpdateRequest.class))
         );
 

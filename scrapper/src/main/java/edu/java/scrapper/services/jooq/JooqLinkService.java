@@ -13,11 +13,7 @@ import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
 
-@Primary
-@Service
 @RequiredArgsConstructor
 public class JooqLinkService implements LinkService {
 
@@ -69,8 +65,7 @@ public class JooqLinkService implements LinkService {
 
     private LinkDto createDto(String url) {
         OffsetDateTime time = OffsetDateTime.now().withNano(0);
-        LinkDto linkToCreate = new LinkDto(url, time, (long) 0, (long) 0, time, time, "admin");
-        return linkToCreate;
+        return new LinkDto(url, time, (long) 0, (long) 0, time, time, "admin");
     }
 
 }

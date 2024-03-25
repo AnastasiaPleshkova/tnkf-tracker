@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
 
-public class CommandRemoverTest {
+class CommandRemoverTest {
     @Test
     void correctCommand() {
         String receiveMessage = "/track https://github.com/sanyarnd/tinkoff-java-course-2023/";

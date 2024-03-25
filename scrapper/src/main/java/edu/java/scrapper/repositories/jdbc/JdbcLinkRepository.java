@@ -25,6 +25,7 @@ public class JdbcLinkRepository implements LinkRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
+    @Override
     @Transactional(readOnly = true)
     public Optional<Link> find(String url) {
         return jdbcTemplate.query(GET_ALL_LINK + WHERE_URL,
@@ -32,11 +33,13 @@ public class JdbcLinkRepository implements LinkRepository {
         ).stream().findAny();
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<Link> findAll() {
         return jdbcTemplate.query(GET_ALL_LINK, new BeanPropertyRowMapper<>(Link.class));
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<Link> findByChatId(long tgChatId) {
         return jdbcTemplate.query(
@@ -45,6 +48,7 @@ public class JdbcLinkRepository implements LinkRepository {
         );
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<Chat> findChatsByUrl(String url) {
         return jdbcTemplate.query(GET_ALL_JOIN + WHERE_URL,
@@ -52,6 +56,7 @@ public class JdbcLinkRepository implements LinkRepository {
         );
     }
 
+    @Override
     @Transactional(readOnly = true)
     public List<Link> findByLastCheckLimit(int maxUpdatedRecordsValue) {
         return jdbcTemplate.query(GET_ALL_LINK
@@ -60,11 +65,19 @@ public class JdbcLinkRepository implements LinkRepository {
         );
     }
 
+    @Override
     @Transactional
     public void addLink(LinkDto linkDto) {
-        jdbcTemplate.update("""
-            INSERT INTO link (url, last_check_time, updated_at, created_at, created_by, answers_count, commits_count)
-            VALUES (?,?,?,?,?,?,?)""",
+        jdbcTemplate.update(
+            """
+                INSERT INTO link (url,
+                                last_check_time,
+                                updated_at,
+                                created_at,
+                                created_by,
+                                answers_count,
+                                commits_count)
+                VALUES (?,?,?,?,?,?,?)""",
             linkDto.getUrl(),
             linkDto.getLastCheckTime(),
             linkDto.getUpdatedAt(),
@@ -75,6 +88,7 @@ public class JdbcLinkRepository implements LinkRepository {
         );
     }
 
+    @Override
     @Transactional
     public int add(long chatId, long linkId) {
         return jdbcTemplate.update(
@@ -82,19 +96,23 @@ public class JdbcLinkRepository implements LinkRepository {
         );
     }
 
+    @Override
     @Transactional
     public int remove(long chatId, long linkId) {
         return jdbcTemplate.update("DELETE FROM chat_link_mapping WHERE chat_id=? AND link_id=?", chatId, linkId);
     }
 
+    @Override
     @Transactional(readOnly = true)
     public boolean checkTracking(long chatId, long linkId) {
         return jdbcTemplate.queryForObject("""
-                SELECT EXISTS (SELECT 1 FROM chat_link_mapping WHERE chat_id = ? AND link_id = ?)""",
+                SELECT EXISTS
+                    (SELECT 1 FROM chat_link_mapping WHERE chat_id = ? AND link_id = ?)""",
             Boolean.class, chatId, linkId
         );
     }
 
+    @Override
     @Transactional
     public void update(Link link) {
         jdbcTemplate.update("""

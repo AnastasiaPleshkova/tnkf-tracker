@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ContainerTest extends IntegrationTest {
+class ContainerTest extends IntegrationTest {
     @Test
     void containerStartupTest() {
         assertTrue(POSTGRES.isRunning());
