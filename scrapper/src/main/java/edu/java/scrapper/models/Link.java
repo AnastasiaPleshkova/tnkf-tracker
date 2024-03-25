@@ -35,6 +35,7 @@ public class Link {
     @Column(name = "commits_count")
     private Long commitsCount;
     @Column(name = "updated_at")
+
     private OffsetDateTime updatedAt;
     @Column(name = "created_at")
     private OffsetDateTime createdAt;

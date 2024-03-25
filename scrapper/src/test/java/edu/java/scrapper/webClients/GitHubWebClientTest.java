@@ -6,13 +6,16 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
+import edu.java.scrapper.dto.response.client.GitCommitsResponse;
 import edu.java.scrapper.dto.response.client.GitUserResponse;
 import java.time.OffsetDateTime;
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @WireMockTest(httpPort = 8080)
 public class GitHubWebClientTest {
@@ -71,5 +74,31 @@ public class GitHubWebClientTest {
         assertThat(actual)
             .extracting(GitUserResponse::name, GitUserResponse::updatedAt)
             .containsExactly(user, time);
+    }
+
+    @Test
+    @SneakyThrows
+    void fetchUserRepoCommitsCorrectResponse() {
+        String user = "AnastasiaPleshkova";
+        String repository = "tnkf-tracker";
+        GitCommitsResponse[] expectedResponse =
+            new GitCommitsResponse[] {new GitCommitsResponse(new GitCommitsResponse.Commit("first"), "url1"),
+                                    new GitCommitsResponse(new GitCommitsResponse.Commit("second"), "url2"),
+                                    new GitCommitsResponse(new GitCommitsResponse.Commit("third"), "url3"),
+            };
+
+        String stabUrl = "/repos/" + user + "/" + repository + "/commits";
+        stubFor(WireMock.get(stabUrl)
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-type", "application/json")
+                .withBody(objectMapper.writeValueAsString(expectedResponse))));
+
+        String url = "http://localhost:8080";
+        GitClient githubGitClient = new GitHubWebClient(url);
+
+        GitCommitsResponse[] actualResponse = githubGitClient.fetchUserRepoCommits(user, repository);
+
+        assertEquals(expectedResponse.length, actualResponse.length);
     }
 }
