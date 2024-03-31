@@ -14,6 +14,7 @@ import java.time.ZoneId;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import reactor.util.retry.Retry;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,7 +48,7 @@ class StackOverFlowWebClientTest {
                 .withBody(objectMapper.writeValueAsString(response))));
 
         String url = "http://localhost:8080";
-        StackClient stackOverFlowHttpClient = new StackOverFlowWebClient(url);
+        StackClient stackOverFlowHttpClient = new StackOverFlowWebClient(url, Retry.max(2));
 
         StackUserResponse actual = stackOverFlowHttpClient.fetchQuestion(id);
 

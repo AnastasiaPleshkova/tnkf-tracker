@@ -12,6 +12,7 @@ import java.time.OffsetDateTime;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import reactor.util.retry.Retry;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +45,7 @@ class GitHubWebClientTest {
                 .withBody(objectMapper.writeValueAsString(response))));
 
         String url = "http://localhost:8080";
-        GitClient githubGitClient = new GitHubWebClient(url);
+        GitClient githubGitClient = new GitHubWebClient(url, Retry.max(2));
 
         GitUserResponse actual = githubGitClient.fetchUserRepo(user, repository);
 
@@ -67,7 +68,7 @@ class GitHubWebClientTest {
                 .withBody(objectMapper.writeValueAsString(response))));
 
         String url = "http://localhost:8080";
-        GitClient githubGitClient = new GitHubWebClient(url);
+        GitClient githubGitClient = new GitHubWebClient(url, Retry.max(2));
 
         GitUserResponse actual = githubGitClient.fetchUser(user);
 
@@ -95,7 +96,7 @@ class GitHubWebClientTest {
                 .withBody(objectMapper.writeValueAsString(expectedResponse))));
 
         String url = "http://localhost:8080";
-        GitClient githubGitClient = new GitHubWebClient(url);
+        GitClient githubGitClient = new GitHubWebClient(url, Retry.max(2));
 
         GitCommitsResponse[] actualResponse = githubGitClient.fetchUserRepoCommits(user, repository);
 

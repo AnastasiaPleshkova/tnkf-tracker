@@ -8,6 +8,11 @@ app:
   githubUrl: https://api.github.com
   stackoverflowUrl: https://api.stackexchange.com/2.3
   botUrl: http://localhost:8090/
+  retryProperties:
+    type: linear
+    statuses: [ 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511 ]
+    attempts: 3
+    delay: 10s
 
 spring:
   application:

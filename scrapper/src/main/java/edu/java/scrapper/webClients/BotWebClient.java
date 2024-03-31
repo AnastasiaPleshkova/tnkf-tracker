@@ -7,13 +7,16 @@ import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 public class BotWebClient implements BotClient {
 
     private final WebClient webClient;
+    private final Retry retry;
 
-    public BotWebClient(String url) {
+    public BotWebClient(String url, Retry retry) {
         this.webClient = WebClient.builder().baseUrl(url).build();
+        this.retry = retry;
     }
 
     @Override
@@ -26,6 +29,7 @@ public class BotWebClient implements BotClient {
             .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(ApiErrorResponse.class)
                 .flatMap(errorResponse -> Mono.error(new RuntimeException(String.valueOf(errorResponse)))))
             .bodyToMono(Void.class)
+            .retryWhen(retry)
             .block();
     }
 

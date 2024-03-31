@@ -11,6 +11,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
+import reactor.util.retry.Retry;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
@@ -40,7 +41,7 @@ class ScrapperWebClientTest {
                 .withHeader("Content-type", "application/json")
                 .withBody(objectMapper.writeValueAsString(response))));
 
-        ScrapperWebClient scrapperWebClient = new ScrapperWebClient(url);
+        ScrapperWebClient scrapperWebClient = new ScrapperWebClient(url, Retry.max(1));
 
         ListLinksResponse actualResponse = scrapperWebClient.getLinks(String.valueOf(999));
         assertThat(actualResponse.links()).isEqualTo(response.links());
@@ -63,7 +64,7 @@ class ScrapperWebClientTest {
                 .withHeader("Content-type", "application/json")
                 .withBody(objectMapper.writeValueAsString(response))));
 
-        ScrapperWebClient scrapperWebClient = new ScrapperWebClient(url);
+        ScrapperWebClient scrapperWebClient = new ScrapperWebClient(url, Retry.max(1));
 
         LinkResponse actualResponse = scrapperWebClient.addLinks("999", request);
 
@@ -88,7 +89,7 @@ class ScrapperWebClientTest {
                 .withHeader("Content-type", "application/json")
                 .withBody(objectMapper.writeValueAsString(response))));
 
-        ScrapperWebClient scrapperWebClient = new ScrapperWebClient(url);
+        ScrapperWebClient scrapperWebClient = new ScrapperWebClient(url, Retry.max(1));
 
         LinkResponse actualResponse = scrapperWebClient.deleteLinks("999", request);
 
@@ -106,7 +107,7 @@ class ScrapperWebClientTest {
                 .withStatus(200)
                 .withHeader("Content-type", "application/json")));
 
-        ScrapperWebClient scrapperWebClient = new ScrapperWebClient(url);
+        ScrapperWebClient scrapperWebClient = new ScrapperWebClient(url, Retry.max(1));
 
         assertDoesNotThrow(() -> scrapperWebClient.registerChat("999"));
     }
@@ -121,7 +122,7 @@ class ScrapperWebClientTest {
                 .withStatus(200)
                 .withHeader("Content-type", "application/json")));
 
-        ScrapperWebClient scrapperWebClient = new ScrapperWebClient(url);
+        ScrapperWebClient scrapperWebClient = new ScrapperWebClient(url, Retry.max(1));
 
         assertDoesNotThrow(() -> scrapperWebClient.deleteChat("999"));
     }

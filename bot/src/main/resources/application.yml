@@ -1,6 +1,11 @@
 app:
   telegram-token: ${BOT_TOKEN}
   scrapperUrl: http://localhost:8080/
+  retryProperties:
+    type: linear
+    statuses: [ 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511 ]
+    attempts: 3
+    delay: 10s
 
 spring:
   application:
