@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
+@SpringBootTest(properties = {"app.database-access-type=jooq", "bucket4j.enabled=false", "spring.cache.type=none"})
 class JooqRepositoryTest extends IntegrationTest {
     @Autowired
     @Qualifier(value = "jooqChatRepository")
