@@ -1,5 +1,6 @@
 package edu.java.scrapper.controllers;
 
+import edu.java.scrapper.IntegrationTest;
 import edu.java.scrapper.services.ChatService;
 import java.time.Duration;
 import lombok.SneakyThrows;
@@ -15,9 +16,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(properties = {"app.database-access-type=jpa"})
+@SpringBootTest
 @AutoConfigureMockMvc
-class RateLimitingControllerTest {
+class RateLimitingControllerTest extends IntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
