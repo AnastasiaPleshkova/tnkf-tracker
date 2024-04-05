@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(properties = "app.database-access-type=jdbc")
+@SpringBootTest(properties = {"app.database-access-type=jdbc", "bucket4j.enabled=false", "spring.cache.type=none"})
 class JdbcRepositoryTest extends IntegrationTest {
     @Autowired
     @Qualifier(value = "jdbcChatRepository")

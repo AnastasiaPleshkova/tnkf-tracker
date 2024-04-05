@@ -1,6 +1,7 @@
 package edu.java.scrapper.configuration;
 
 import edu.java.scrapper.configuration.accessTypes.AccessType;
+import edu.java.scrapper.configuration.retry.RetryProperties;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import java.time.Duration;
@@ -21,6 +22,9 @@ public record ApplicationConfig(
     Integer maxUpdatedRecordsValue,
     @NotNull
     AccessType databaseAccessType,
+    @NotNull
+    @Bean
+    RetryProperties retryProperties,
     @NotNull
     @Bean
     Scheduler scheduler

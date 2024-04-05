@@ -6,13 +6,16 @@ import edu.java.scrapper.dto.response.client.GitUserResponse;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 public class GitHubWebClient implements GitClient {
 
     private final WebClient webClient;
+    private final Retry retry;
 
-    public GitHubWebClient(String url) {
+    public GitHubWebClient(String url, Retry retry) {
         this.webClient = WebClient.builder().baseUrl(url).build();
+        this.retry = retry;
     }
 
     @Override
@@ -21,7 +24,9 @@ public class GitHubWebClient implements GitClient {
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(GitErrorResponse.class)
                 .flatMap(errorResponse -> Mono.error(new RuntimeException(errorResponse.message()))))
-            .bodyToMono(GitUserResponse.class).block();
+            .bodyToMono(GitUserResponse.class)
+            .retryWhen(retry)
+            .block();
     }
 
     @Override
@@ -30,7 +35,9 @@ public class GitHubWebClient implements GitClient {
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(GitErrorResponse.class)
                 .flatMap(errorResponse -> Mono.error(new RuntimeException(errorResponse.message()))))
-            .bodyToMono(GitUserResponse.class).block();
+            .bodyToMono(GitUserResponse.class)
+            .retryWhen(retry)
+            .block();
     }
 
     @Override
@@ -39,7 +46,9 @@ public class GitHubWebClient implements GitClient {
             .retrieve()
             .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(GitErrorResponse.class)
                 .flatMap(errorResponse -> Mono.error(new RuntimeException(errorResponse.message()))))
-            .bodyToMono(GitCommitsResponse[].class).block();
+            .bodyToMono(GitCommitsResponse[].class)
+            .retryWhen(retry)
+            .block();
     }
 }
 

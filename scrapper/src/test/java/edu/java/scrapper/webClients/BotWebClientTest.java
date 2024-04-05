@@ -9,6 +9,7 @@ import edu.java.scrapper.dto.response.ApiErrorResponse;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.junit.jupiter.api.Test;
+import reactor.util.retry.Retry;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -30,7 +31,7 @@ class BotWebClientTest {
         LinkUpdateRequest linkUpdateRequest = new LinkUpdateRequest(
             100L, new URI("google.com"), "description", new Long[1]
         );
-        BotWebClient botWebClient = new BotWebClient(botUrl);
+        BotWebClient botWebClient = new BotWebClient(botUrl, Retry.max(2));
 
         assertDoesNotThrow(() -> botWebClient.sendUpdate(linkUpdateRequest));
 
@@ -54,7 +55,7 @@ class BotWebClientTest {
             100L, new URI("google.com"), "description", new Long[1]
         );
 
-        BotWebClient botWebClient = new BotWebClient(botUrl);
+        BotWebClient botWebClient = new BotWebClient(botUrl,Retry.max(2));
 
         assertThrows(RuntimeException.class, () -> botWebClient.sendUpdate(linkUpdateRequest));
 

@@ -27,6 +27,10 @@
         <!-- Other -->
         <jetbrains-annotations.version>24.1.0</jetbrains-annotations.version>
         <java-telegram-bot-api.version>7.0.1</java-telegram-bot-api.version>
+        <bucket4j-spring-boot-starter.version>0.12.5</bucket4j-spring-boot-starter.version>
+        <bucket4j-core.version>8.10.1</bucket4j-core.version>
+        <github-ben-manes-caffeine.version>3.1.8</github-ben-manes-caffeine.version>
+        <javax-cache-api.version>1.1.1</javax-cache-api.version>
 
         <!-- Tests -->
         <testcontainers.version>1.19.4</testcontainers.version>
@@ -86,6 +90,34 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <!-- Rate Limiter -->
+            <dependency>
+                <groupId>com.giffing.bucket4j.spring.boot.starter</groupId>
+                <artifactId>bucket4j-spring-boot-starter</artifactId>
+                <version>${bucket4j-spring-boot-starter.version}</version>
+            </dependency>
+            <!-- caching support-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-cache</artifactId>
+                <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.cache</groupId>
+                <artifactId>cache-api</artifactId>
+                <version>${javax-cache-api.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${github-ben-manes-caffeine.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>jcache</artifactId>
+                <version>${github-ben-manes-caffeine.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -10,15 +10,18 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 public class ScrapperWebClient implements ScrapperClient {
     public static final String LINKS = "api/links";
     public static final String CHAT_ID = "api/tg-chat/{id}";
     public static final String TG_CHAT_ID_HEADER = "Tg-Chat-Id";
     private final WebClient webClient;
+    private final Retry retry;
 
-    public ScrapperWebClient(String url) {
+    public ScrapperWebClient(String url, Retry retry) {
         this.webClient = WebClient.builder().baseUrl(url).build();
+        this.retry = retry;
     }
 
     @Override
@@ -30,6 +33,7 @@ public class ScrapperWebClient implements ScrapperClient {
             .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(ApiErrorResponse.class)
                 .flatMap(errorResponse -> Mono.error(new RuntimeException(errorResponse.description()))))
             .bodyToMono(ListLinksResponse.class)
+            .retryWhen(retry)
             .block();
     }
 
@@ -44,6 +48,7 @@ public class ScrapperWebClient implements ScrapperClient {
             .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(ApiErrorResponse.class)
                 .flatMap(errorResponse -> Mono.error(new RuntimeException(errorResponse.description()))))
             .bodyToMono(LinkResponse.class)
+            .retryWhen(retry)
             .block();
     }
 
@@ -59,6 +64,7 @@ public class ScrapperWebClient implements ScrapperClient {
             .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(ApiErrorResponse.class)
                 .flatMap(errorResponse -> Mono.error(new RuntimeException(errorResponse.description()))))
             .bodyToMono(LinkResponse.class)
+            .retryWhen(retry)
             .block();
     }
 
@@ -71,6 +77,7 @@ public class ScrapperWebClient implements ScrapperClient {
             .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(ApiErrorResponse.class)
                 .flatMap(errorResponse -> Mono.error(new RuntimeException(String.valueOf(errorResponse)))))
             .bodyToMono(Void.class)
+            .retryWhen(retry)
             .block();
     }
 
@@ -82,6 +89,7 @@ public class ScrapperWebClient implements ScrapperClient {
             .onStatus(HttpStatusCode::is4xxClientError, response -> response.bodyToMono(ApiErrorResponse.class)
                 .flatMap(errorResponse -> Mono.error(new RuntimeException(String.valueOf(errorResponse)))))
             .bodyToMono(Void.class)
+            .retryWhen(retry)
             .block();
     }
 

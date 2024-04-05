@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(properties = "app.database-access-type=jpa")
+@SpringBootTest(properties = {"app.database-access-type=jpa", "bucket4j.enabled=false", "spring.cache.type=none"})
 class JpaServiceTest extends IntegrationTest {
 
     @Autowired
