@@ -6,6 +6,12 @@ app:
     statuses: [ 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511 ]
     attempts: 3
     delay: 10s
+  kafka:
+    bootstrap-servers: http://localhost:9092, http://localhost:29092
+    topicName: "linkUpdates"
+    consumer:
+      group-id: "1"
+    error-topic-name: errorLinkUpdates_dlq
 
 spring:
   application:
