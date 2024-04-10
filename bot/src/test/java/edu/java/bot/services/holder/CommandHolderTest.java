@@ -1,5 +1,6 @@
 package edu.java.bot.services.holder;
 
+import edu.java.bot.services.SendErrorService;
 import edu.java.bot.services.commands.Command;
 import edu.java.bot.services.commands.Help;
 import edu.java.bot.services.commands.ListCommand;
@@ -11,6 +12,7 @@ import java.util.Collection;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,6 +24,9 @@ class CommandHolderTest {
 
     @Autowired
     CommandHolder commandHolder;
+
+    @MockBean
+    SendErrorService implSendUpdateService;
 
     @Test
     void correctTrackCommand() {

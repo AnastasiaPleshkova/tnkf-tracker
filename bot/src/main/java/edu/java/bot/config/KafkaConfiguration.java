@@ -26,7 +26,6 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 public class KafkaConfiguration {
     private final ApplicationConfig applicationConfig;
 
-    @Bean
     public Map<String, Object> consumerProperties() {
         Map<String, Object> properties = new HashMap<>();
         properties.put(

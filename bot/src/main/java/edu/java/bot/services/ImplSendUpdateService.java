@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class ImplSendUpdateService implements SendUpdateService {
     private final MyBot myBot;
 
+    @Override
     public void sendUpdate(LinkUpdateRequest linkUpdate) {
         String message = linkUpdate.description();
         log.info(message);
@@ -22,4 +23,5 @@ public class ImplSendUpdateService implements SendUpdateService {
             .map(id -> new SendMessage(id, message))
             .forEach(myBot::executeMessage);
     }
+
 }
