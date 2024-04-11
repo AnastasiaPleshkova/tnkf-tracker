@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pengrad.telegrambot.TelegramBot;
 import edu.java.bot.MyBot;
 import edu.java.bot.dto.request.controller.LinkUpdateRequest;
-import edu.java.bot.services.SendErrorService;
 import java.net.URI;
 import java.time.Duration;
 import lombok.SneakyThrows;
@@ -31,8 +30,6 @@ class RateLimitingControllerTest {
     MyBot myBot;
     @MockBean
     TelegramBot telegramBot;
-    @MockBean
-    SendErrorService implSendUpdateService;
 
     private static ObjectMapper objectMapper;
 

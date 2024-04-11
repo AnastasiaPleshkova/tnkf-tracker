@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ImplSendErrorService implements SendErrorService {
     @Value("${app.kafka.error-topic-name}")
-    private final String errorTopicName;
+    private String errorTopicName;
     private final KafkaTemplate<String, LinkUpdateRequest> kafkaTemplate;
 
     @Override

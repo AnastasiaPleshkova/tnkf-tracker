@@ -34,7 +34,7 @@ public class KafkaConfiguration {
         );
         properties.put(
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-            StringSerializer.class
+            StringDeserializer.class
         );
         properties.put(
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
@@ -52,12 +52,12 @@ public class KafkaConfiguration {
         return new DefaultKafkaConsumerFactory<>(
             consumerProperties(),
             new StringDeserializer(),
-            new JsonDeserializer<>(LinkUpdateRequest.class)
+            new JsonDeserializer(LinkUpdateRequest.class)
         );
     }
 
     @Bean
-    ConcurrentKafkaListenerContainerFactory<String, LinkUpdateRequest> kafkaListenerContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, LinkUpdateRequest> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, LinkUpdateRequest> factory =
             new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory());

@@ -7,7 +7,7 @@ app:
     attempts: 3
     delay: 10s
   kafka:
-    bootstrap-servers: http://localhost:9092, http://localhost:29092
+    bootstrap-servers: http://localhost:29092
     topicName: "linkUpdates"
     consumer:
       group-id: "1"
