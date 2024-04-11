@@ -27,8 +27,15 @@ public record ApplicationConfig(
     RetryProperties retryProperties,
     @NotNull
     @Bean
-    Scheduler scheduler
+    Scheduler scheduler,
+    @NotNull
+    Kafka kafka,
+    Boolean useQueue
 ) {
     public record Scheduler(boolean enable, @NotNull Duration interval, @NotNull Duration forceCheckDelay) {
+    }
+
+    public record Kafka(@NotNull String bootstrapServers,
+                        @NotNull String topicName) {
     }
 }

@@ -7,7 +7,7 @@ import edu.java.scrapper.dto.response.client.StackQuestion;
 import edu.java.scrapper.dto.response.client.StackUserResponse;
 import edu.java.scrapper.models.Link;
 import edu.java.scrapper.repositories.LinkRepository;
-import edu.java.scrapper.webClients.BotClient;
+import edu.java.scrapper.services.sendUpdates.SendUpdate;
 import edu.java.scrapper.webClients.GitClient;
 import edu.java.scrapper.webClients.StackClient;
 import java.time.OffsetDateTime;
@@ -41,7 +41,7 @@ class JooqLinkUpdaterTest {
     private StackClient stackClient;
 
     @Mock
-    private BotClient botClient;
+    private SendUpdate updateSendler;
 
     @InjectMocks
     private JooqLinkUpdater jooqLinkUpdater;
@@ -71,7 +71,7 @@ class JooqLinkUpdaterTest {
         jooqLinkUpdater.updateStackLink(link);
 
         assertEquals(now, link.getUpdatedAt());
-        verify(botClient, times(1)).sendUpdate(any(LinkUpdateRequest.class));
+        verify(updateSendler, times(1)).send(any(LinkUpdateRequest.class));
     }
 
     @Test
@@ -90,7 +90,7 @@ class JooqLinkUpdaterTest {
         jooqLinkUpdater.updateGitLink(link);
 
         assertEquals(now, link.getUpdatedAt());
-        verify(botClient, times(1)).sendUpdate(any(LinkUpdateRequest.class));
+        verify(updateSendler, times(1)).send(any(LinkUpdateRequest.class));
     }
 
     @Test
@@ -148,7 +148,7 @@ class JooqLinkUpdaterTest {
             () -> assertEquals(today, linksToUpdate.get(2).getLastCheckTime()),
             () -> assertEquals(yesterday, linksToUpdate.get(3).getUpdatedAt()),
             () -> assertEquals(today, linksToUpdate.get(3).getLastCheckTime()),
-            () -> verify(botClient, times(2)).sendUpdate(any(LinkUpdateRequest.class))
+            () -> verify(updateSendler, times(2)).send(any(LinkUpdateRequest.class))
         );
 
     }
@@ -196,9 +196,9 @@ class JooqLinkUpdaterTest {
             () -> assertEquals(0, linksToUpdate.get(0).getCommitsCount()),
             () -> assertEquals(yesterday, linksToUpdate.get(1).getUpdatedAt()),
             () -> assertEquals(1, linksToUpdate.get(1).getCommitsCount()),
-            () -> verify(botClient, times(1)).sendUpdate(argThat(arg ->
+            () -> verify(updateSendler, times(1)).send(argThat(arg ->
                 arg.description().contains(commits) && arg.url().toString().equals(url2))),
-            () -> verify(botClient, times(1)).sendUpdate(argThat(arg ->
+            () -> verify(updateSendler, times(1)).send(argThat(arg ->
                 arg.description().startsWith(someChanges) && arg.url().toString().equals(url1)))
         );
 
@@ -256,9 +256,9 @@ class JooqLinkUpdaterTest {
             () -> assertEquals(5, linksToUpdate.get(1).getAnswersCount()),
             () -> assertEquals(yesterday, linksToUpdate.get(2).getUpdatedAt()),
             () -> assertEquals(0, linksToUpdate.get(2).getAnswersCount()),
-            () -> verify(botClient, times(1)).sendUpdate(argThat(arg ->
+            () -> verify(updateSendler, times(1)).send(argThat(arg ->
                 arg.description().contains(answers) && arg.url().toString().equals(url2))),
-            () -> verify(botClient, times(1)).sendUpdate(argThat(arg ->
+            () -> verify(updateSendler, times(1)).send(argThat(arg ->
                 arg.description().startsWith(someChanges) && arg.url().toString().equals(url1)))
         );
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pengrad.telegrambot.TelegramBot;
 import edu.java.bot.MyBot;
 import edu.java.bot.dto.request.controller.LinkUpdateRequest;
+import edu.java.bot.services.SendUpdateService;
 import java.net.URI;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,9 @@ class BotControllerTest {
     MyBot myBot;
     @MockBean
     TelegramBot telegramBot;
+
+    @MockBean
+    SendUpdateService sendUpdateService;
 
     private static ObjectMapper objectMapper;
 

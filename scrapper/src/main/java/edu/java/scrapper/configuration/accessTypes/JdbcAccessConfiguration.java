@@ -8,7 +8,7 @@ import edu.java.scrapper.services.LinkUpdater;
 import edu.java.scrapper.services.jdbc.JdbcChatService;
 import edu.java.scrapper.services.jdbc.JdbcLinkService;
 import edu.java.scrapper.services.jdbc.JdbcLinkUpdater;
-import edu.java.scrapper.webClients.BotClient;
+import edu.java.scrapper.services.sendUpdates.SendUpdate;
 import edu.java.scrapper.webClients.GitClient;
 import edu.java.scrapper.webClients.StackClient;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class JdbcAccessConfiguration {
 
     private final GitClient gitClient;
     private final StackClient stackClient;
-    private final BotClient botClient;
+    private final SendUpdate updateSendler;
 
     @Bean
     public LinkService linkService(
@@ -44,6 +44,6 @@ public class JdbcAccessConfiguration {
     public LinkUpdater linkUpdater(
         JdbcLinkRepository linkRepository
     ) {
-        return new JdbcLinkUpdater(linkRepository, gitClient, stackClient, botClient);
+        return new JdbcLinkUpdater(linkRepository, gitClient, stackClient, updateSendler);
     }
 }

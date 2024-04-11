@@ -8,7 +8,7 @@ import edu.java.scrapper.models.Chat;
 import edu.java.scrapper.models.Link;
 import edu.java.scrapper.repositories.jpa.JpaChatRepository;
 import edu.java.scrapper.repositories.jpa.JpaLinkRepository;
-import edu.java.scrapper.webClients.BotClient;
+import edu.java.scrapper.services.sendUpdates.SendUpdate;
 import edu.java.scrapper.webClients.GitClient;
 import edu.java.scrapper.webClients.StackClient;
 import java.time.OffsetDateTime;
@@ -43,7 +43,7 @@ class JpaLinkUpdaterTest {
     private StackClient stackClient;
 
     @Mock
-    private BotClient botClient;
+    private SendUpdate updateSendler;
 
     @InjectMocks
     private JpaLinkUpdater jpaLinkUpdater;
@@ -53,21 +53,23 @@ class JpaLinkUpdaterTest {
         OffsetDateTime time = OffsetDateTime.now().minusDays(1);
         String url = "https://stackoverflow.com/questions/123/test-url";
         long id = 1;
-        Link link = new Link(id, url, time, (long)0,(long)0,time, time, "test", new HashSet<>());
+        Link link = new Link(id, url, time, (long) 0, (long) 0, time, time, "test", new HashSet<>());
 
         StackQuestion questionItem = new StackQuestion("123", OffsetDateTime.now(), 0);
 
         when(stackClient.fetchQuestion("123"))
             .thenReturn(new StackUserResponse(Collections.singletonList(questionItem)));
-        when(chatRepository.findByLinksUrl(url)).thenReturn(Collections.singletonList(new Chat(1L,
+        when(chatRepository.findByLinksUrl(url)).thenReturn(Collections.singletonList(new Chat(
+            1L,
             1L,
             time,
             "test",
-            new HashSet<>())));
+            new HashSet<>()
+        )));
 
         jpaLinkUpdater.updateStackLink(link);
 
-        verify(botClient, times(1)).sendUpdate(any(LinkUpdateRequest.class));
+        verify(updateSendler, times(1)).send(any(LinkUpdateRequest.class));
     }
 
     @Test
@@ -75,14 +77,14 @@ class JpaLinkUpdaterTest {
         OffsetDateTime time = OffsetDateTime.now().minusDays(1);
         long id = 1;
         String url = "https://github.com/AnastasiaPleshkova/tnkf-tracker";
-        Link link = new Link(id, url, time, (long)0,(long)0,time, time, "test", new HashSet<>());
+        Link link = new Link(id, url, time, (long) 0, (long) 0, time, time, "test", new HashSet<>());
 
         when(gitClient.fetchUserRepo("AnastasiaPleshkova", "tnkf-tracker"))
             .thenReturn(new GitUserResponse("name", OffsetDateTime.now()));
 
         jpaLinkUpdater.updateGitLink(link);
 
-        verify(botClient, times(1)).sendUpdate(any(LinkUpdateRequest.class));
+        verify(updateSendler, times(1)).send(any(LinkUpdateRequest.class));
     }
 
     @Test
@@ -96,7 +98,7 @@ class JpaLinkUpdaterTest {
                 id,
                 "https://github.com/AnastasiaPleshkova/tnkf-tracker",
                 yesterday,
-                (long)0,(long)0,
+                (long) 0, (long) 0,
                 yesterday,
                 yesterday,
                 "test",
@@ -106,7 +108,7 @@ class JpaLinkUpdaterTest {
                 id,
                 "https://github.com/AnotherRepoName/test",
                 yesterday,
-                (long)0,(long)0,
+                (long) 0, (long) 0,
                 yesterday,
                 yesterday,
                 "test",
@@ -116,7 +118,7 @@ class JpaLinkUpdaterTest {
                 id,
                 "https://stackoverflow.com/questions/123/test-url",
                 yesterday,
-                (long)0,(long)0,
+                (long) 0, (long) 0,
                 yesterday,
                 yesterday,
                 "test",
@@ -126,7 +128,7 @@ class JpaLinkUpdaterTest {
                 id,
                 "https://stackoverflow.com/questions/123456/test-url",
                 yesterday,
-                (long)0,(long)0,
+                (long) 0, (long) 0,
                 yesterday,
                 yesterday,
                 "test",
@@ -153,7 +155,7 @@ class JpaLinkUpdaterTest {
 
         assertAll(
             () -> assertEquals(2, updatedCount),
-            () -> verify(botClient, times(2)).sendUpdate(any(LinkUpdateRequest.class))
+            () -> verify(updateSendler, times(2)).send(any(LinkUpdateRequest.class))
         );
 
     }

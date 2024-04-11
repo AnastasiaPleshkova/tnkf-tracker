@@ -8,7 +8,7 @@ import edu.java.scrapper.services.LinkUpdater;
 import edu.java.scrapper.services.jpa.JpaChatService;
 import edu.java.scrapper.services.jpa.JpaLinkService;
 import edu.java.scrapper.services.jpa.JpaLinkUpdater;
-import edu.java.scrapper.webClients.BotClient;
+import edu.java.scrapper.services.sendUpdates.SendUpdate;
 import edu.java.scrapper.webClients.GitClient;
 import edu.java.scrapper.webClients.StackClient;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class JpaAccessConfiguration {
 
     private final GitClient gitClient;
     private final StackClient stackClient;
-    private final BotClient botClient;
+    private final SendUpdate updateSendler;
 
     @Bean
     public ChatService chatService(
@@ -45,7 +45,7 @@ public class JpaAccessConfiguration {
         JpaLinkRepository linkRepository,
         JpaChatRepository chatRepository
     ) {
-        return new JpaLinkUpdater(linkRepository, chatRepository, gitClient, stackClient, botClient);
+        return new JpaLinkUpdater(linkRepository, chatRepository, gitClient, stackClient, updateSendler);
     }
 
 }

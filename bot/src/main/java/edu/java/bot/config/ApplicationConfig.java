@@ -16,12 +16,24 @@ public record ApplicationConfig(
     String scrapperUrl,
     @NotNull
     @Bean
-    RetryProperties retryProperties
+    RetryProperties retryProperties,
+
+    @NotNull
+    Kafka kafka
 ) {
     public record RetryProperties(RetryType type, int[] statuses, int attempts, Duration delay) {
         public enum RetryType {
             CONSTANT, LINEAR, EXPONENTIAL
         }
 
+    }
+
+    public record Kafka(@NotNull String bootstrapServers,
+                        @NotNull String topicName,
+                        @NotNull Consumer consumer,
+                        @NotNull String errorTopicName) {
+
+        public record Consumer(@NotNull String groupId) {
+        }
     }
 }
