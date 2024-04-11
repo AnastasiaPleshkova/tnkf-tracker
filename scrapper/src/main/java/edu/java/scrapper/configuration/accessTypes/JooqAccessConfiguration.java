@@ -8,7 +8,7 @@ import edu.java.scrapper.services.LinkUpdater;
 import edu.java.scrapper.services.jooq.JooqChatService;
 import edu.java.scrapper.services.jooq.JooqLinkService;
 import edu.java.scrapper.services.jooq.JooqLinkUpdater;
-import edu.java.scrapper.services.sendUpdates.UpdateSendler;
+import edu.java.scrapper.services.sendUpdates.SendUpdate;
 import edu.java.scrapper.webClients.GitClient;
 import edu.java.scrapper.webClients.StackClient;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ public class JooqAccessConfiguration {
 
     private final GitClient gitClient;
     private final StackClient stackClient;
-    private final UpdateSendler updateSendler;
+    private final SendUpdate updateSendler;
 
     @Bean
     public LinkService linkService(

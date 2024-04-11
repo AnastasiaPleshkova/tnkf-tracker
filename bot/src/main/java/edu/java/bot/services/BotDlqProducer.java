@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class ImplSendErrorService implements SendErrorService {
+public class BotDlqProducer implements BotProducer {
     @Value("${app.kafka.error-topic-name}")
     private String errorTopicName;
     private final KafkaTemplate<String, LinkUpdateRequest> kafkaTemplate;
 
     @Override
-    public void sendErrorUpdate(LinkUpdateRequest linkUpdate) {
+    public void sendUpdate(LinkUpdateRequest linkUpdate) {
         kafkaTemplate.send(errorTopicName, linkUpdate);
     }
 

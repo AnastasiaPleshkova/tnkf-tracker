@@ -8,7 +8,7 @@ import edu.java.scrapper.models.Chat;
 import edu.java.scrapper.models.Link;
 import edu.java.scrapper.repositories.jpa.JpaChatRepository;
 import edu.java.scrapper.repositories.jpa.JpaLinkRepository;
-import edu.java.scrapper.services.sendUpdates.UpdateSendler;
+import edu.java.scrapper.services.sendUpdates.SendUpdate;
 import edu.java.scrapper.webClients.GitClient;
 import edu.java.scrapper.webClients.StackClient;
 import java.time.OffsetDateTime;
@@ -43,7 +43,7 @@ class JpaLinkUpdaterTest {
     private StackClient stackClient;
 
     @Mock
-    private UpdateSendler updateSendler;
+    private SendUpdate updateSendler;
 
     @InjectMocks
     private JpaLinkUpdater jpaLinkUpdater;

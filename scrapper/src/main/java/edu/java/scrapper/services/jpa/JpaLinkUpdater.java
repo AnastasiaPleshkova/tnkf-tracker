@@ -6,7 +6,7 @@ import edu.java.scrapper.models.Link;
 import edu.java.scrapper.repositories.jpa.JpaChatRepository;
 import edu.java.scrapper.repositories.jpa.JpaLinkRepository;
 import edu.java.scrapper.services.LinkUpdater;
-import edu.java.scrapper.services.sendUpdates.UpdateSendler;
+import edu.java.scrapper.services.sendUpdates.SendUpdate;
 import edu.java.scrapper.webClients.GitClient;
 import edu.java.scrapper.webClients.StackClient;
 import java.net.URI;
@@ -32,7 +32,7 @@ public class JpaLinkUpdater implements LinkUpdater {
     private final JpaChatRepository chatRepository;
     private final GitClient gitClient;
     private final StackClient stackClient;
-    private final UpdateSendler updateSendler;
+    private final SendUpdate updateSendler;
     private int count;
 
     @Override

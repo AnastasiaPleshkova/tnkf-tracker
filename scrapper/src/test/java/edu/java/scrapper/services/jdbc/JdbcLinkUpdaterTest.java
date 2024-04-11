@@ -7,7 +7,7 @@ import edu.java.scrapper.dto.response.client.StackQuestion;
 import edu.java.scrapper.dto.response.client.StackUserResponse;
 import edu.java.scrapper.models.Link;
 import edu.java.scrapper.repositories.LinkRepository;
-import edu.java.scrapper.services.sendUpdates.UpdateSendler;
+import edu.java.scrapper.services.sendUpdates.SendUpdate;
 import edu.java.scrapper.webClients.GitClient;
 import edu.java.scrapper.webClients.StackClient;
 
@@ -44,7 +44,7 @@ class JdbcLinkUpdaterTest {
     private StackClient stackClient;
 
     @Mock
-    private UpdateSendler updateSendler;
+    private SendUpdate updateSendler;
 
     @InjectMocks
     private JdbcLinkUpdater jdbcLinkUpdater;

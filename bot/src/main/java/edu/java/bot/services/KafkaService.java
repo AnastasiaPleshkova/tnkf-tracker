@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class KafkaService {
     private final SendUpdateService sendUpdateService;
-    private final SendErrorService sendErrorService;
+    private final BotProducer botDlqProducer;
 
     @KafkaListener(topics = "${app.kafka.topicName}", groupId = "${app.kafka.consumer.group-id}")
     public void listen(LinkUpdateRequest update) {
@@ -20,7 +20,7 @@ public class KafkaService {
             sendUpdateService.sendUpdate(update);
         } catch (Exception e) {
             log.warn("Ошибка, отправлено в dlq: " + update);
-            sendErrorService.sendErrorUpdate(update);
+            botDlqProducer.sendUpdate(update);
         }
     }
 
