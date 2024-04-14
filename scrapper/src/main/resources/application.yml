@@ -13,7 +13,7 @@ app:
     statuses: [ 500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511 ]
     attempts: 3
     delay: 10s
-  useQueue: true
+  useQueue: false
   kafka:
     bootstrap-servers: localhost:29092
     topicName: "linkUpdates"
@@ -54,3 +54,16 @@ bucket4j:
             - capacity: 10
               time: 5
               unit: seconds
+management:
+  server:
+    port: 8081
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoints:
+    web:
+      base-path: /
+      exposure:
+        include: info,health,prometheus
+      path-mapping:
+        prometheus: /metrics

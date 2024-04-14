@@ -31,6 +31,8 @@
         <bucket4j-core.version>8.10.1</bucket4j-core.version>
         <github-ben-manes-caffeine.version>3.1.8</github-ben-manes-caffeine.version>
         <javax-cache-api.version>1.1.1</javax-cache-api.version>
+        <micrometer-registry-prometheus.version>1.12.5</micrometer-registry-prometheus.version>
+        <micrometer-tracing-bridge-brave.version>1.2.5</micrometer-tracing-bridge-brave.version>
 
         <!-- Tests -->
         <testcontainers.version>1.19.4</testcontainers.version>
@@ -119,6 +121,20 @@
                 <artifactId>jcache</artifactId>
                 <version>${github-ben-manes-caffeine.version}</version>
             </dependency>
+
+
+            <!-- metrics-->
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-registry-prometheus</artifactId>
+                <version>${micrometer-registry-prometheus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-tracing-bridge-brave</artifactId>
+                <version>${micrometer-tracing-bridge-brave.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
