@@ -7,28 +7,34 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.request.SetMyCommands;
 import edu.java.bot.services.holder.Holder;
+import io.micrometer.core.instrument.Counter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class MyBot {
     private final TelegramBot telegramBot;
     private final Holder holder;
+    private final Counter processedMessagesCounter;
 
-    public MyBot(String token, Holder holder) {
+    public MyBot(String token, Holder holder, Counter processedMessagesCounter) {
         this.telegramBot = new TelegramBot(token);
         this.holder = holder;
+        this.processedMessagesCounter = processedMessagesCounter;
     }
 
     public void execute(Update update) {
         executeSafely(() -> {
             String command = update.message().text().split(" ")[0];
             SendMessage sendMessage = holder.getHandler(command).process(update);
-            telegramBot.execute(sendMessage);
+            executeMessage(sendMessage);
         }, "Произошла ошибка во время исполнения команды");
     }
 
     public void executeMessage(SendMessage sendMessage) {
-        executeSafely(() -> telegramBot.execute(sendMessage), "Произошла ошибка во время отправки сообщения");
+        executeSafely(() -> {
+            telegramBot.execute(sendMessage);
+            processedMessagesCounter.increment();
+        }, "Произошла ошибка во время отправки сообщения");
     }
 
     public void setUpdatesListener() {
