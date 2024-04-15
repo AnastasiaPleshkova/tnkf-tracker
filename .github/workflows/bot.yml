@@ -7,6 +7,9 @@ on:
       - .github/workflows/bot.yml
       - bot/**
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}/bot
 
 jobs:
   build:
